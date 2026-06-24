@@ -6,6 +6,7 @@ import ProductShowcase from '../components/ProductShowcase';
 import FeaturedSolutions from '../components/FeaturedSolutions';
 import WhyChooseUs from '../components/WhyChooseUs';
 import ProcessWorkflow from '../components/ProcessWorkflow';
+import ProcessConfigurator from '../components/ProcessConfigurator';
 import RFQSection from '../components/RFQSection';
 import Footer from '../components/Footer';
 
@@ -37,6 +38,9 @@ export default function Home() {
 
         {/* Road-mapped timeline */}
         <ProcessWorkflow />
+
+        {/* Interactive process calculator and equipment sizing */}
+        <ProcessConfigurator />
 
         {/* B2B Contact / RFQ submission */}
         <RFQSection />

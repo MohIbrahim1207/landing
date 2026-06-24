@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -11,6 +11,19 @@ export default function RFQSection() {
     interest: '',
     details: ''
   });
+
+  useEffect(() => {
+    const handleApplyConfig = (e) => {
+      const { category, text } = e.detail;
+      setFormData((prev) => ({
+        ...prev,
+        interest: category,
+        details: text
+      }));
+    };
+    window.addEventListener('apply-config', handleApplyConfig);
+    return () => window.removeEventListener('apply-config', handleApplyConfig);
+  }, []);
 
   const [status, setStatus] = useState({
     submitting: false,
