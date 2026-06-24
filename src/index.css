@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0d1516;
+  --color-surface: #0d1516;
+  --color-surface-dim: #0d1516;
+  --color-surface-bright: #333a3c;
+  --color-surface-container-lowest: #080f11;
+  --color-surface-container-low: #161d1f;
+  --color-surface-container: #1a2123;
+  --color-surface-container-high: #242b2d;
+  --color-surface-container-highest: #2f3638;
+  --color-on-surface: #dce4e6;
+  --color-on-surface-variant: #bac9cd;
+  
+  --color-primary: #baf2ff;
+  --color-on-primary: #00363f;
+  --color-primary-container: #00e0ff;
+  --color-on-primary-container: #005f6d;
+  --color-primary-fixed-dim: #00daf8;
+  
+  --color-secondary: #c4c6cc;
+  --color-on-secondary: #2d3135;
+  --color-secondary-container: #46494e;
+  --color-on-secondary-container: #b6b8be;
+  
+  --color-tertiary: #ffe6b6;
+  --color-on-tertiary: #3f2e00;
+  --color-tertiary-container: #fec42e;
+  --color-on-tertiary-container: #6f5200;
+  
+  --color-outline: #859397;
+  --color-outline-variant: #3b494c;
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0d1516;
+  color: #dce4e6;
+  font-family: "Inter", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d1516;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2123;
+  border: 1px solid #3b494c;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #242b2d;
+}
+
+/* Premium Industrial Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 224, 255, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(0, 224, 255, 0.15);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(186, 242, 255, 0.25);
+}
+
+.text-glow-accent {
+  text-shadow: 0 0 20px rgba(0, 224, 255, 0.4);
+}
+
+.border-glow:hover {
+  border-color: rgba(0, 224, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 224, 255, 0.1);
+}
+
+.mask-radial {
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+.metallic-bg {
+  background: linear-gradient(135deg, #161d1f 0%, #0d1516 100%);
+}
+
+/* Custom animations for background grid pattern */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
