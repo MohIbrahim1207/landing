@@ -160,10 +160,10 @@ export default function ProcessWorkflow() {
 
         {/* Desktop Timeline (Horizontal) */}
         <div className="hidden lg:block relative py-8">
-          {/* Inactive connecting line */}
-          <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/10 z-0 -translate-y-1/2"></div>
+          {/* Inactive connecting line - positioned at the vertical center of the bubbles (32px padding + 28px bubble radius = 60px) */}
+          <div className="absolute top-[60px] left-0 w-full h-[2px] bg-white/10 z-0 -translate-y-1/2"></div>
           {/* Active progress line */}
-          <div className="desktop-progress-line absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-[#00e0ff] to-[#00b0ff] z-0 -translate-y-1/2 origin-left scale-x-0 will-change-transform"></div>
+          <div className="desktop-progress-line absolute top-[60px] left-0 w-full h-[2px] bg-gradient-to-r from-[#00e0ff] to-[#00b0ff] z-0 -translate-y-1/2 origin-left scale-x-0 will-change-transform"></div>
           
           <div className="grid grid-cols-7 gap-6 relative z-10">
             {steps.map((step) => {
@@ -173,8 +173,8 @@ export default function ProcessWorkflow() {
                   key={step.title}
                   className="desktop-step-item group flex flex-col items-center text-center space-y-4 will-change-transform"
                 >
-                  {/* Step bubble */}
-                  <div className="w-14 h-14 rounded-full bg-[#0d1516] border border-white/10 group-hover:border-[#00e0ff]/30 text-[#00e0ff] flex items-center justify-center transition-all duration-300 relative shadow-[0_0_15px_rgba(13,21,22,0.8)]">
+                  {/* Step bubble - explicitly set z-10 to mask the background connecting line */}
+                  <div className="w-14 h-14 rounded-full bg-[#0d1516] border border-white/10 group-hover:border-[#00e0ff]/30 text-[#00e0ff] flex items-center justify-center transition-all duration-300 relative z-10 shadow-[0_0_15px_rgba(13,21,22,0.8)]">
                     <IconComponent className="w-5.5 h-5.5" />
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 font-mono text-[9px] px-2 py-0.5 bg-white/5 border border-white/10 rounded-full text-on-surface-variant">
                       {step.number}
