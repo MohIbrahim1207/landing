@@ -11,6 +11,7 @@ import {
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { images } from '../data/images';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -135,6 +136,12 @@ export default function ProcessWorkflow() {
 
   return (
     <section ref={sectionRef} id="process" className="py-32 bg-[#0c1213] relative overflow-hidden">
+      {/* Background workflow image */}
+      <div 
+        className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-screen bg-cover bg-center select-none"
+        style={{ backgroundImage: `url(${images.workflow})` }}
+      ></div>
+
       {/* Background gradients */}
       <div className="absolute top-1/2 right-1/4 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-primary-container/2 rounded-full blur-3xl pointer-events-none"></div>
 

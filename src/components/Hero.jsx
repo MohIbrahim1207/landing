@@ -100,8 +100,8 @@ export default function Hero() {
           className="w-full h-full object-cover scale-110 will-change-transform"
           style={{ transformOrigin: 'center center' }}
           onError={(e) => {
-            // Fallback to dark industrial pipes Unsplash
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1920';
+            // Fallback to locally hosted backup asset
+            e.currentTarget.src = images.hero.backgroundAlt;
           }}
         />
         {/* Multi-layer dark overlays */}
