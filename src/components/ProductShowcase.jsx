@@ -386,6 +386,19 @@ export default function ProductShowcase() {
       return () => tween.scrollTrigger?.kill();
     });
 
+    // Video player fade-in
+    gsap.from(".product-video-card", {
+      opacity: 0,
+      y: 45,
+      duration: 1.0,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: ".product-video-card",
+        start: 'top 82%',
+        toggleActions: 'play none none none',
+      },
+    });
+
     return () => mm.revert();
   }, { scope: sectionRef });
 
@@ -484,6 +497,33 @@ export default function ProductShowcase() {
             Scroll to explore
           </span>
         </div>
+      </div>
+
+      {/* Video Player Section */}
+      <div className="relative py-20 md:py-28 px-6 max-w-7xl mx-auto z-10 w-full flex flex-col items-center border-t border-white/5">
+        
+        {/* Glowing electric blue ambient circle behind video */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none rounded-full bg-[#00AEEF]/5 blur-[120px] z-0" />
+        
+        {/* Label */}
+        <span className="font-mono text-xs font-bold tracking-[0.2em] text-[#00AEEF] uppercase mb-6 z-10 text-center">
+          ROTARY VALVE — PRODUCT HIGHLIGHT
+        </span>
+
+        {/* Video Card */}
+        <div className="product-video-card w-full max-w-[900px] rounded-2xl border border-[#00AEEF] bg-[#0c1213]/90 shadow-[0_0_40px_rgba(0,174,239,0.25)] overflow-hidden z-10 relative">
+          <video
+            src="/Flow_Force_Rotary_Valve_highlight_202606261412_gwr_video_mvp.mp4"
+            controls
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="w-full h-auto aspect-video object-cover"
+          />
+        </div>
+        
       </div>
     </section>
   );

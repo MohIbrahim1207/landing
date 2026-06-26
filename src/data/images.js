@@ -43,15 +43,18 @@ export const images = {
     bagFilterHousing: "/images/products/bag_filter_housing.png",
     selfCleaningFilter: "/images/products/filtration.png",
     liquidFiltration: "/images/products/filtration.png",
+    filtration: "/images/products/filtration.png",
 
     // Conveying
     pneumaticConveying: "/images/products/pneumatic_conveying.jpg",
     conveyingSystems: "/images/products/conveying.png",
     screwConveyor: "/images/products/conveying.png",
+    conveying: "/images/products/conveying.png",
 
     // Bulk material handling
     siloSystem: "/images/products/silo_system.png",
     bigBagHandling: "/images/products/bulk_material_handling.png",
+    bulk_material_handling: "/images/products/bulk_material_handling.png",
     rotaryValve: "/images/products/rotary_valve.png",
     bucketElevator: "/images/products/conveying.png",
 
