@@ -32,11 +32,11 @@ export default function CatalogHome({ onViewProduct }) {
             className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden max-w-lg w-full text-left"
           >
             {/* Centered Product Image Panel */}
-            <div className="bg-gray-50 h-72 w-full flex items-center justify-center p-8 border-b border-gray-100 select-none">
+            <div className="bg-white h-72 w-full flex items-center justify-center p-6 md:p-8 border-b border-gray-100 select-none">
               <img
                 src={singleProduct.image}
                 alt={singleProduct.name}
-                className="max-h-full max-w-full object-contain mx-auto"
+                className="w-[70%] sm:w-[75%] md:w-[80%] h-auto max-h-[85%] object-contain mx-auto transition-all duration-300"
                 loading="lazy"
               />
             </div>
