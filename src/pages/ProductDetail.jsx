@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { PRODUCTS } from '../data/products';
-import { ArrowLeft, FileText, Send, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, FileText, Send, CheckCircle, Play, Eye } from 'lucide-react';
 
 const Product3DViewer = React.lazy(() => import('../components/Product3DViewer'));
 
@@ -50,11 +50,10 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
   const sectionRefs = {
     overview: useRef(null),
     features: useRef(null),
-    brochure: useRef(null),
-    industries: useRef(null),
+    specifications: useRef(null),
     applications: useRef(null),
-    options: useRef(null),
-    specifications: useRef(null)
+    video: useRef(null),
+    brochure: useRef(null)
   };
 
   const handleScrollToSection = (sectionKey) => {
@@ -86,7 +85,12 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
   };
 
   const handleDownload = () => {
-    alert(`Downloading brochure for ${product.name}: ${product.brochure}`);
+    const link = document.createElement('a');
+    link.href = '/COMPANY PROFILE FLOW FORCE INDONESIA 2026.pdf';
+    link.download = 'COMPANY PROFILE FLOW FORCE INDONESIA 2026.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleFormSubmit = (e) => {
@@ -135,9 +139,9 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
 
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
-        {/* Top Product Header section */}
+        {/* 1. Product Hero section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-          {/* Left: Product Image / 3D Switcher Module (45-50% width on desktop) */}
+          {/* Left: Product Image / 3D Switcher Column */}
           <div className="lg:col-span-5 flex flex-col gap-4">
             {/* Switcher segmented tabs */}
             <div className="bg-white border border-gray-200 rounded-lg p-1 flex shadow-2xs">
@@ -242,7 +246,8 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
 
         {/* Section Contents with generous whitespace */}
         <div className="space-y-20 text-left">
-          {/* Overview Section */}
+          
+          {/* 2. Overview Section */}
           <div ref={sectionRefs.overview} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
             <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
               Overview
@@ -252,7 +257,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
             </p>
           </div>
 
-          {/* Features Section */}
+          {/* 3. Features Section */}
           <div ref={sectionRefs.features} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
             <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
               Features & Benefits
@@ -267,98 +272,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
             </div>
           </div>
 
-          {/* Brochure Section */}
-          <div ref={sectionRefs.brochure} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Brochure
-            </h2>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-gray-50 rounded border border-gray-200">
-              <div className="flex items-center gap-4">
-                <div className="p-3.5 bg-[#005f6d]/10 rounded border border-[#005f6d]/20 text-[#005f6d]">
-                  <FileText className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="font-sans text-[16px] font-bold text-gray-900 uppercase">
-                    TECHNICAL DATA SHEET & PRODUCT SPECIFICATION
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">Format: PDF Document • Detailed dimension drawing blueprints.</p>
-                </div>
-              </div>
-              <button
-                onClick={handleDownload}
-                className="py-2.5 px-6 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded text-xs uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Download PDF Brochure
-              </button>
-            </div>
-          </div>
-
-          {/* Industries Section */}
-          <div ref={sectionRefs.industries} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Industries
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {product.industries.map((ind, idx) => (
-                <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-4 text-center">
-                  <span className="font-sans text-xs font-bold text-gray-800 uppercase block">{ind}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Applications Section */}
-          <div ref={sectionRefs.applications} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Applications Gallery
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {product.applications.map((app, idx) => (
-                <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-4 flex flex-col justify-between">
-                  <div className="w-full h-24 bg-gray-100 rounded mb-3 flex items-center justify-center text-gray-400 font-mono text-[9px] uppercase tracking-wider select-none border border-gray-200">
-                    Application Layout {idx + 1}
-                  </div>
-                  <span className="font-sans text-xs font-bold text-gray-700 uppercase leading-snug">{app}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Options Section */}
-          <div ref={sectionRefs.options} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Configurable Product Options
-            </h2>
-            <p className="text-xs text-gray-500 mb-6 font-semibold">Select your process modifications below to automatically include them in your technical RFQ scoping brief.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {product.options.map((opt) => {
-                const isSelected = !!selectedOptions[opt.name];
-                return (
-                  <div
-                    key={opt.name}
-                    onClick={() => handleOptionToggle(opt.name)}
-                    className={`p-4 rounded border text-left cursor-pointer transition-all ${
-                      isSelected
-                        ? 'bg-[#005f6d]/5 border-[#005f6d] shadow-2xs'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-sans text-sm font-bold text-gray-900 uppercase">{opt.name}</h4>
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center ${
-                        isSelected ? 'bg-[#005f6d] border-[#005f6d] text-white' : 'border-gray-300'
-                      }`}>
-                        {isSelected && <span className="text-[10px] font-bold">✓</span>}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500">{opt.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Specifications Section */}
+          {/* 4. Specifications Section */}
           <div ref={sectionRefs.specifications} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
             <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
               Specifications
@@ -382,9 +296,91 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
               </table>
             </div>
           </div>
+
+          {/* 5. Applications Section */}
+          <div ref={sectionRefs.applications} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
+            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
+              Applications Gallery
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {product.applications.map((app, idx) => (
+                <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-4 flex flex-col justify-between">
+                  <div className="w-full h-24 bg-gray-100 rounded mb-3 flex items-center justify-center text-gray-400 font-mono text-[9px] uppercase tracking-wider select-none border border-gray-200">
+                    Application Layout {idx + 1}
+                  </div>
+                  <span className="font-sans text-xs font-bold text-gray-700 uppercase leading-snug">{app}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 6. Product Demonstration Video (Coming Soon) */}
+          <div ref={sectionRefs.video} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
+            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
+              Product Demonstration Video
+            </h2>
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-200 bg-[#f3f4f6] flex flex-col items-center justify-center p-6 shadow-2xs select-none">
+              {/* Coming Soon status badge */}
+              <div className="absolute top-4 right-4 bg-[#005f6d] text-white text-[10px] font-mono uppercase tracking-widest font-bold px-3 py-1 rounded">
+                Coming Soon
+              </div>
+
+              {/* Large Play Icon placeholder */}
+              <div className="w-16 h-16 rounded-full bg-white/80 border border-gray-200 flex items-center justify-center mb-4 shadow-sm hover:scale-105 transition-transform duration-300">
+                <Play className="w-6 h-6 text-[#005f6d] fill-[#005f6d] ml-1" />
+              </div>
+              
+              <h3 className="font-sans text-[20px] font-bold text-gray-900 uppercase mb-2">
+                Product Demonstration Video
+              </h3>
+              <p className="font-sans text-sm text-gray-500 leading-normal font-semibold">
+                This product demonstration video will be added soon.
+              </p>
+            </div>
+          </div>
+
+          {/* 7. Download Brochure (PDF from the public folder) */}
+          <div ref={sectionRefs.brochure} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
+            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
+              Download Brochure
+            </h2>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-gray-50 rounded border border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-red-50 rounded border border-red-200 text-red-600">
+                  <FileText className="w-10 h-10" />
+                </div>
+                <div>
+                  <h3 className="font-sans text-[18px] font-bold text-gray-900 uppercase">
+                    Flow Force Indonesia - Industrial Sifting & Separation Systems
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1 font-semibold">
+                    File Type: PDF Document • Size: 3.0 MB
+                  </p>
+                </div>
+              </div>
+              
+              {/* Brochure Action Controls */}
+              <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                <button
+                  onClick={handleDownload}
+                  className="flex-grow md:flex-grow-0 py-2.5 px-6 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Download Brochure
+                </button>
+                <a
+                  href="/COMPANY PROFILE FLOW FORCE INDONESIA 2026.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-grow md:flex-grow-0 py-2.5 px-6 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded text-xs uppercase tracking-wider text-center transition-colors cursor-pointer"
+                >
+                  View PDF
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Related Products Section */}
+        {/* 8. Related Products Section */}
         <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs mt-16 text-left">
           <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
             Related Products
@@ -412,10 +408,45 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
           </div>
         </div>
 
-        {/* Form Section */}
+        {/* 9. Request Quote Section (includes Configurable Options & RFQ Form) */}
         <div id="quote-form-section" className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs mt-16 text-left">
           <div className="max-w-2xl mx-auto">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6 text-center">
+            
+            {/* Options configuration check-list inside the form section for clean flow */}
+            <div className="mb-10 pb-8 border-b border-gray-200">
+              <h3 className="font-sans text-[22px] font-bold text-gray-900 uppercase mb-3">
+                Configurable Options
+              </h3>
+              <p className="text-xs text-gray-500 mb-6 font-semibold">Select your process modifications below to automatically include them in your technical RFQ scoping brief.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {product.options.map((opt) => {
+                  const isSelected = !!selectedOptions[opt.name];
+                  return (
+                    <div
+                      key={opt.name}
+                      onClick={() => handleOptionToggle(opt.name)}
+                      className={`p-4 rounded border text-left cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-[#005f6d]/5 border-[#005f6d] shadow-2xs'
+                          : 'bg-white border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-sans text-sm font-bold text-gray-900 uppercase">{opt.name}</h4>
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+                          isSelected ? 'bg-[#005f6d] border-[#005f6d] text-white' : 'border-gray-300'
+                        }`}>
+                          {isSelected && <span className="text-[10px] font-bold">✓</span>}
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">{opt.desc}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase mb-4 text-center">
               Request Technical Quote
             </h2>
             <p className="text-xs text-gray-500 text-center mb-8">
