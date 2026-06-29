@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
 
 @theme {
   --color-background: #0d1516;
@@ -32,7 +33,7 @@
   --color-outline: #859397;
   --color-outline-variant: #3b494c;
   
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", "Source Sans 3", "IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   --font-mono: "Geist Mono", monospace;
   
   --radius-lg: 0.5rem;
@@ -45,9 +46,13 @@ html {
 }
 
 body {
-  background-color: #0d1516;
-  color: #dce4e6;
-  font-family: "Inter", system-ui, sans-serif;
+  background-color: #f8f9fa;
+  color: #1a2123;
+  font-family: "Inter", "Source Sans 3", "IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  font-weight: 400;
+  text-align: left;
   overflow-x: hidden;
 }
 
