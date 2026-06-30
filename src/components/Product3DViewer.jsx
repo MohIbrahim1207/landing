@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Html, useProgress, ContactShadows } from '@react-three/drei';
+import { OrbitControls, Html, useProgress, ContactShadows, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { RotateCw, ZoomIn, ZoomOut, Maximize2, RefreshCw, FileText, Info } from 'lucide-react';
 import { PRODUCTS } from '../data/products';
@@ -23,105 +23,194 @@ class ErrorBoundary extends React.Component {
 }
 
 /* ─── PROCEDURAL CENTRIFUGAL SIFTER MODEL ─── */
-function SifterModel3D({ mode, explodedOffset }) {
+function SifterModel3D({ mode, isLowEnd }) {
   const shaftRef = useRef();
+  
+  // Animation state values for smooth transitions
+  const explodedProgress = useRef(0);
+  const clipProgress = useRef(5); // start unclipped (constant = 5)
+  
+  const planeRef = useRef(new THREE.Plane(new THREE.Vector3(0, 0, -1), 5));
+  const planes = useMemo(() => [planeRef.current], []);
 
-  useFrame(() => {
+  useFrame((state, delta) => {
+    // Rotation of internal paddles
     if (shaftRef.current && mode !== 'exploded') {
-      shaftRef.current.rotation.x += 0.01;
+      shaftRef.current.rotation.x += 0.015;
     }
+
+    // Smoothly lerp exploded animation progress
+    const targetExploded = mode === 'exploded' ? 1.0 : 0.0;
+    explodedProgress.current = THREE.MathUtils.lerp(explodedProgress.current, targetExploded, 0.08);
+
+    // Smoothly lerp clipping plane constant for Section View
+    const targetClip = mode === 'section' ? 0.0 : 5.0;
+    clipProgress.current = THREE.MathUtils.lerp(clipProgress.current, targetClip, 0.08);
+    planeRef.current.constant = clipProgress.current;
   });
 
   const wire = mode === 'wireframe';
   const xray = mode === 'xray';
-  
-  // Materials specs matching client guidelines:
-  // Stainless Steel: Metalness: 0.9, Roughness: 0.15
-  // Painted Surfaces: Metalness: 0.3, Roughness: 0.45
-  // Rubber Components: Metalness: 0, Roughness: 0.85
+  const sectionActive = mode === 'section' || clipProgress.current < 4.9;
+
+  // High-fidelity PBR Stainless Steel (Brushed: metalness 0.95, roughness 0.25)
   const matStainless = {
-    metalness: 0.9,
-    roughness: 0.15,
-    color: xray ? '#00e0ff' : '#e2e8f0', // bright polished look
-    transparent: xray,
-    opacity: xray ? 0.4 : 1.0,
+    metalness: 0.95,
+    roughness: 0.25,
+    color: '#cbd5e1',
     wireframe: wire,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
+    clippingPlanes: sectionActive ? planes : undefined,
+    clipShadows: true
   };
 
   const matPainted = {
-    metalness: 0.3,
+    metalness: 0.35,
     roughness: 0.45,
-    color: xray ? '#00b4d8' : '#64748b', // steel blue painted look
-    transparent: xray,
-    opacity: xray ? 0.3 : 1.0,
-    wireframe: wire
+    color: '#005f6d', // Brand industrial teal
+    wireframe: wire,
+    clippingPlanes: sectionActive ? planes : undefined,
+    clipShadows: true
   };
 
   const matRubber = {
-    metalness: 0,
-    roughness: 0.85,
-    color: '#1e293b', // deep carbon grey (not black)
-    wireframe: wire
+    metalness: 0.1,
+    roughness: 0.8,
+    color: '#1f2937',
+    wireframe: wire,
+    clippingPlanes: sectionActive ? planes : undefined,
+    clipShadows: true
   };
+
+  const matScreenMesh = {
+    color: '#9ca3af',
+    wireframe: true,
+    transparent: true,
+    opacity: 0.45,
+    clippingPlanes: sectionActive ? planes : undefined,
+    clipShadows: true
+  };
+
+  // Animation values distributed over components
+  const eVal = explodedProgress.current;
+  const housingOffset = eVal * -1.8;
+  const screenOffset = eVal * -0.9;
+  const motorOffset = eVal * 1.2;
+  const inletOffset = eVal * 0.9;
+  const outletOffset = eVal * -0.9;
+  const paddleOffset = eVal * 0.45;
 
   return (
     <group position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-      {/* 1. Main outer screen chamber housing (ASME pressure-rated cylinder) */}
-      <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.3, 1.3, 3.8, 32, 1, mode === 'section']} />
+      {/* Support Stand / Base Frame (remains stationary) */}
+      <group position={[0, -1.7, 0]}>
+        {/* Floor Base Plates */}
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[4.2, 0.15, 2.0]} />
+          <meshStandardMaterial {...matPainted} />
+        </mesh>
+        {/* Support Pillar Left */}
+        <mesh position={[-1.6, 0.8, 0]} castShadow>
+          <boxGeometry args={[0.3, 1.6, 0.3]} />
+          <meshStandardMaterial {...matPainted} />
+        </mesh>
+        {/* Support Pillar Right */}
+        <mesh position={[1.6, 0.8, 0]} castShadow>
+          <boxGeometry args={[0.3, 1.6, 0.3]} />
+          <meshStandardMaterial {...matPainted} />
+        </mesh>
+      </group>
+
+      {/* Main Sieve Housing (slides out to the left) */}
+      <group position={[housingOffset, 0, 0]}>
+        {xray ? (
+          <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[1.3, 1.3, 3.4, 32]} />
+            <meshPhysicalMaterial
+              transmission={0.9}
+              thickness={0.5}
+              roughness={0.1}
+              ior={1.4}
+              color="#0d9488"
+              emissive="#0d9488"
+              emissiveIntensity={0.1}
+              transparent
+              opacity={0.65}
+              side={THREE.DoubleSide}
+              clippingPlanes={sectionActive ? planes : undefined}
+              clipShadows={true}
+            />
+          </mesh>
+        ) : (
+          <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
+            {/* Cutaway layout exposing interior components */}
+            <cylinderGeometry args={[1.3, 1.3, 3.4, 32, 1, false, 0, Math.PI * 1.55]} />
+            <meshStandardMaterial {...matStainless} />
+          </mesh>
+        )}
+
+        {/* Solid Section Cap (closes hollow visual interior during Section View) */}
+        {sectionActive && !wire && (
+          <mesh position={[0, 0, -0.01]} rotation={[Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[3.4, 2.6]} />
+            <meshStandardMaterial color="#334155" metalness={0.4} roughness={0.6} side={THREE.DoubleSide} />
+          </mesh>
+        )}
+      </group>
+
+      {/* Conical Inlet Hopper (moves up) */}
+      <mesh position={[-1.3, 1.3 + inletOffset, 0]} castShadow>
+        <cylinderGeometry args={[0.6, 0.45, 0.9, 16]} />
         <meshStandardMaterial {...matStainless} />
       </mesh>
 
-      {/* Flanged Inlet Hopper Top (Inlet) */}
-      <mesh position={[-1.3, 1.3 + explodedOffset, 0]} castShadow>
-        <cylinderGeometry args={[0.55, 0.4, 0.9, 16]} />
+      {/* Oversize Discharge Funnel (moves down) */}
+      <mesh position={[-1.3, -1.3 - outletOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
+        <cylinderGeometry args={[0.55, 0.35, 1.0, 16]} />
         <meshStandardMaterial {...matStainless} />
       </mesh>
 
-      {/* Oversize Discharge Chute Bottom Left */}
-      <mesh position={[-1.3, -1.3 - explodedOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
+      {/* Fines Funnel Discharge (moves down) */}
+      <mesh position={[1.1, -1.3 - outletOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
         <cylinderGeometry args={[0.55, 0.3, 1.0, 16]} />
         <meshStandardMaterial {...matStainless} />
       </mesh>
 
-      {/* Fines Funnel Discharge Bottom Right */}
-      <mesh position={[1.1, -1.3 - explodedOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
-        <cylinderGeometry args={[0.55, 0.25, 1.0, 16]} />
-        <meshStandardMaterial {...matStainless} />
+      {/* Internal Sifting Screen Mesh Basket (slides out left) */}
+      <mesh position={[screenOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[1.05, 1.05, 3.0, 32]} />
+        <meshStandardMaterial {...matScreenMesh} />
       </mesh>
 
-      {/* Rubber anti-vibration isolation mount rings */}
-      <mesh position={[-1.3, 0.85, 0]} castShadow>
-        <torusGeometry args={[0.5, 0.1, 16, 32]} />
-        <meshStandardMaterial {...matRubber} />
-      </mesh>
-      <mesh position={[1.1, -0.85, 0]} castShadow>
-        <torusGeometry args={[0.5, 0.1, 16, 32]} />
-        <meshStandardMaterial {...matRubber} />
-      </mesh>
-
-      {/* 2. Cantilever shaft with sifting paddles inside */}
+      {/* Rotor Shaft & Paddle assembly (opaque internals in X-Ray) */}
       <group ref={shaftRef}>
         <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.2, 0.2, 4.2, 16]} />
-          <meshStandardMaterial {...matStainless} color="#94a3b8" />
+          <cylinderGeometry args={[0.22, 0.22, 4.0, 16]} />
+          <meshStandardMaterial
+            color={xray ? '#00daf8' : '#e2e8f0'}
+            metalness={0.95}
+            roughness={0.15}
+            clippingPlanes={sectionActive ? planes : undefined}
+            clipShadows={true}
+          />
         </mesh>
         
-        {/* Sifter paddles */}
+        {/* Paddles */}
         {[-1.1, -0.4, 0.4, 1.1].map((xLoc, idx) => {
           const angle = (idx * Math.PI) / 2;
-          const rad = 0.65 + explodedOffset * 0.4;
+          const rad = 0.6 + paddleOffset;
           return (
             <group key={idx} rotation={[angle, 0, 0]} position={[xLoc, 0, 0]}>
               <mesh position={[0, rad, 0]} castShadow>
-                <boxGeometry args={[0.25, 0.05, 0.9]} />
+                <boxGeometry args={[0.22, 0.06, 0.85]} />
                 <meshStandardMaterial
-                  color={xray ? '#00e0ff' : '#005f6d'}
-                  metalness={0.9}
-                  roughness={0.15}
-                  emissive={xray ? '#00e0ff' : '#000000'}
-                  emissiveIntensity={xray ? 1.0 : 0}
+                  color={xray ? '#00daf8' : '#005f6d'}
+                  metalness={0.95}
+                  roughness={0.2}
+                  emissive={xray ? '#00daf8' : '#000000'}
+                  emissiveIntensity={xray ? 1.2 : 0}
+                  clippingPlanes={sectionActive ? planes : undefined}
+                  clipShadows={true}
                 />
               </mesh>
             </group>
@@ -129,16 +218,23 @@ function SifterModel3D({ mode, explodedOffset }) {
         })}
       </group>
 
-      {/* 3. Heavy Duty Drive Motor (Painted finish) */}
-      <mesh position={[2.4 + explodedOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.65, 0.65, 1.3, 16]} />
-        <meshStandardMaterial {...matPainted} />
-      </mesh>
-      {/* Motor cooling fins */}
-      <mesh position={[3.1 + explodedOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.58, 0.58, 0.2, 16]} />
-        <meshStandardMaterial {...matRubber} />
-      </mesh>
+      {/* Drive Motor (moves right) */}
+      <group position={[2.3 + motorOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <mesh castShadow>
+          <cylinderGeometry args={[0.65, 0.65, 1.2, 16]} />
+          <meshStandardMaterial {...matPainted} />
+        </mesh>
+        {[0.4, 0.2, 0, -0.2, -0.4].map((yOffset, i) => (
+          <mesh key={i} position={[0, yOffset, 0]} castShadow>
+            <cylinderGeometry args={[0.72, 0.72, 0.03, 16]} />
+            <meshStandardMaterial {...matRubber} />
+          </mesh>
+        ))}
+        <mesh position={[0, 0.2, 0.6]} castShadow>
+          <boxGeometry args={[0.3, 0.3, 0.3]} />
+          <meshStandardMaterial {...matPainted} />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -170,22 +266,34 @@ export default function Product3DViewer() {
   const [autoRotate, setAutoRotate] = useState(true);
   const [isInteracting, setIsInteracting] = useState(false);
   const [activeHotspot, setActiveHotspot] = useState(null);
+  const [hoveredHotspot, setHoveredHotspot] = useState(null);
+  const [isLowEnd, setIsLowEnd] = useState(false);
+  
   const containerRef = useRef(null);
   const interactionTimer = useRef(null);
 
-  const product = PRODUCTS[0]; // Centrifugal Sieving System
+  const product = PRODUCTS[0];
+
+  useEffect(() => {
+    const checkPerformance = () => {
+      const concurrency = navigator.hardwareConcurrency || 4;
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+      if (concurrency <= 4 || isTouch) {
+        setIsLowEnd(true);
+      }
+    };
+    checkPerformance();
+  }, []);
 
   // Hotspot details
   const hotspots = [
-    { name: 'Rotor', pos: [0, 0.6, 0.5], mat: 'Stainless Steel 316L (Polished)', desc: 'Rotating paddle assembly that fluidizes raw powder against the mesh.' },
-    { name: 'Housing', pos: [-1.2, 0, 0], mat: 'ASME-Grade SS316L', desc: 'Main cantilevered chamber barrel shell with quick-release door clamps.' },
-    { name: 'Motor', pos: [2.8, 0, 0], mat: 'Painted Alloy Casing', desc: '1.5kW to 5.5kW continuous-duty industrial drive motor (<70 dBA).' },
-    { name: 'Bearings', pos: [1.8, 0, 0.4], mat: 'Outboard Roller Assembly', desc: 'Double-sealed, dust-isolated bearing modules to prevent product ingress.' },
-    { name: 'Inlet', pos: [-1.3, 1.8, 0], mat: 'Sanitary FDA Tri-Clamp', desc: 'Product feed connection point fitted with weir flow controller.' },
-    { name: 'Outlet', pos: [-1.3, -1.8, 0], mat: 'Stainless Steel 316L', desc: 'Fines and oversize discharge funnel outputs.' }
+    { name: 'Material Inlet', pos: [-1.3, 1.5, 0], mat: 'Sanitary FDA Tri-Clamp', desc: 'Conical feed hopper inlet fitted with quick-release tri-clamp couplings.' },
+    { name: 'Paddle Assembly', pos: [0, 0.5, 0.6], mat: 'Stainless Steel 316L (Polished)', desc: 'High-speed rotating paddles that fluidize powder against the screen mesh.' },
+    { name: 'Tool-Free Screen Access', pos: [-0.6, 0, 1.2], mat: 'ASME-Grade SS316L', desc: 'Cantilever end door allowing full screen removal and inspection in under 60 seconds.' },
+    { name: 'Discharge Outlet', pos: [-1.3, -1.5, 0], mat: 'Stainless Steel 316L', desc: 'Separate gravity-fed discharge funnels for fines and oversize product.' },
+    { name: 'Industrial Drive Motor', pos: [2.3, 0.3, 0.5], mat: 'Painted Alloy Casing', desc: 'Continuous duty motor configured to specific plant operating speeds.' },
+    { name: 'Outboard Bearing Assembly', pos: [1.6, 0, 0.5], mat: 'Outboard Roller Unit', desc: 'Double-sealed and gas-purged shaft seal housing preventing product contamination.' }
   ];
-
-  const explodedOffset = viewMode === 'exploded' ? 0.6 : 0.0;
 
   // Handle interaction pause & delay resume auto-rotate
   const handleStart = () => {
@@ -251,59 +359,67 @@ export default function Product3DViewer() {
               gl={{
                 toneMapping: THREE.ACESFilmicToneMapping,
                 outputColorSpace: THREE.SRGBColorSpace,
-                antialias: true
+                antialias: true,
+                localClippingEnabled: true
               }}
-              // Centered camera offset slightly tilted for 3/4 engineering view
-              camera={{ position: [3.8, 2.5, 4.2], fov: 45 }}
+              // 3/4 Studio angle framing view on load
+              camera={{ position: [4.5, 3.0, 4.5], fov: 40 }}
               className="w-full h-full cursor-grab active:cursor-grabbing"
             >
-              {/* Clean light studio coloring */}
-              <color attach="background" args={['#f3f4f6']} />
+              <color attach="background" args={['#0d1516']} />
 
               {/* STUDIO LIGHTING CONFIGURATION */}
-              {/* 1. Ambient Light */}
-              <ambientLight intensity={viewMode === 'xray' ? 0.9 : 0.45} />
+              <ambientLight intensity={viewMode === 'xray' ? 0.9 : 0.4} />
+              <hemisphereLight skyColor="#ffffff" groundColor="#0f172a" intensity={0.3} />
               
-              {/* 2. Hemisphere Light */}
-              <hemisphereLight skyColor="#ffffff" groundColor="#cbd5e1" intensity={0.4} />
-
-              {/* 3. Directional Key Light */}
               <directionalLight
                 position={[6, 12, 6]}
-                intensity={1.3}
+                intensity={1.5}
                 castShadow
-                shadow-mapSize-width={2048}
-                shadow-mapSize-height={2048}
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
                 shadow-bias={-0.0001}
               />
-
-              {/* 4. Fill Light */}
-              <directionalLight position={[-6, 4, 3]} intensity={0.6} />
-
-              {/* 5. Rim Light */}
-              <directionalLight position={[0, 4, -6]} intensity={0.8} />
+              <directionalLight position={[-6, 4, 3]} intensity={0.5} />
+              <directionalLight position={[0, 4, -6]} intensity={0.7} />
 
               {/* 3D Model */}
-              <SifterModel3D mode={viewMode} explodedOffset={explodedOffset} />
+              <SifterModel3D mode={viewMode} isLowEnd={isLowEnd} />
+
+              {/* HDRI reflections preset (studio) - gated for higher end devices */}
+              {!isLowEnd && <Environment preset="studio" />}
 
               {/* Soft Contact Shadow element */}
               <ContactShadows
-                position={[0, -1.8, 0]}
-                opacity={0.3}
+                position={[0, -1.72, 0]}
+                opacity={0.4}
                 scale={10}
-                blur={2.4}
+                blur={2.5}
                 far={4}
               />
 
-              {/* Interactive HTML Hotspots */}
-              {hotspots.map((hot) => (
+              {/* Interactive Numbered HTML Hotspots */}
+              {hotspots.map((hot, idx) => (
                 <Html key={hot.name} position={hot.pos} center distanceFactor={8}>
-                  <button
-                    onClick={() => setActiveHotspot(hot)}
-                    className="w-5 h-5 rounded-full bg-[#005f6d] border-2 border-white text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform cursor-pointer"
-                  >
-                    i
-                  </button>
+                  <div className="relative group">
+                    <button
+                      onClick={() => setActiveHotspot(hot)}
+                      onMouseEnter={() => setHoveredHotspot(hot.name)}
+                      onMouseLeave={() => setHoveredHotspot(null)}
+                      className={`w-6 h-6 rounded-full border-2 border-white text-white font-mono text-xs font-bold flex items-center justify-center shadow-lg transition-all duration-300 cursor-pointer ${
+                        activeHotspot?.name === hot.name ? 'bg-[#00daf8] scale-110' : 'bg-[#005f6d] hover:bg-[#00daf8]'
+                      }`}
+                    >
+                      {idx + 1}
+                    </button>
+                    
+                    {/* Tooltip */}
+                    {(hoveredHotspot === hot.name || activeHotspot?.name === hot.name) && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-gray-900/95 text-white text-[10px] font-sans font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap pointer-events-none border border-white/10 z-50">
+                        {hot.name}
+                      </div>
+                    )}
+                  </div>
                 </Html>
               ))}
 
@@ -402,3 +518,4 @@ export default function Product3DViewer() {
     </ErrorBoundary>
   );
 }
+
