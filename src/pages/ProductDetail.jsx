@@ -126,12 +126,12 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-sm text-[#005f6d] font-semibold hover:text-[#00363f] transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-base text-[#005f6d] font-semibold hover:text-[#00363f] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Catalog</span>
           </button>
-          <span className="font-mono text-xs font-bold text-gray-500 hidden sm:inline uppercase">
+          <span className="font-mono text-sm font-bold text-gray-500 hidden sm:inline uppercase">
             FLOW FORCE INDUSTRIAL CATALOG
           </span>
         </div>
@@ -147,7 +147,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
             <div className="bg-white border border-gray-200 rounded-lg p-1 flex shadow-2xs">
               <button
                 onClick={() => setMediaTab('image')}
-                className={`flex-grow py-2 text-center text-xs font-bold uppercase tracking-wider rounded transition-all cursor-pointer ${
+                className={`flex-grow py-2.5 text-center text-sm font-bold uppercase tracking-wider rounded transition-all cursor-pointer ${
                   mediaTab === 'image'
                     ? 'bg-[#005f6d] text-white'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -157,7 +157,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
               </button>
               <button
                 onClick={() => setMediaTab('3d')}
-                className={`flex-grow py-2 text-center text-xs font-bold uppercase tracking-wider rounded transition-all cursor-pointer ${
+                className={`flex-grow py-2.5 text-center text-sm font-bold uppercase tracking-wider rounded transition-all cursor-pointer ${
                   mediaTab === '3d'
                     ? 'bg-[#005f6d] text-white'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -174,13 +174,13 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="max-h-[350px] max-w-full object-contain"
+                    className="max-h-[350px] max-w-full object-contain scale-[2.0]"
                   />
                 </div>
               ) : (
                 <Suspense
                   fallback={
-                    <div className="bg-white border border-gray-200 rounded-lg flex items-center justify-center min-h-[400px] shadow-xs text-gray-500 font-mono text-xs uppercase tracking-widest">
+                    <div className="bg-white border border-gray-200 rounded-lg flex items-center justify-center min-h-[400px] shadow-xs text-gray-500 font-mono text-sm uppercase tracking-widest">
                       Loading 3D Canvas...
                     </div>
                   }
@@ -194,7 +194,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
           {/* Right: Info and Primary CTA Actions */}
           <div className="lg:col-span-7 flex flex-col justify-between text-left">
             <div className="space-y-6">
-              <span className="font-mono text-xs text-[#005f6d] tracking-widest uppercase font-bold">
+              <span className="font-mono text-sm text-[#005f6d] tracking-widest uppercase font-bold">
                 {product.category}
               </span>
               <h1 className="font-sans text-[44px] md:text-[48px] font-bold text-gray-900 tracking-tight uppercase leading-tight">
@@ -214,13 +214,13 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
                     formElement.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="py-3 px-8 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded shadow-sm hover:shadow transition-all text-[15px] uppercase tracking-wider cursor-pointer"
+                className="py-3 px-8 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded shadow-sm hover:shadow transition-all text-lg uppercase tracking-wider cursor-pointer"
               >
                 Request Quote
               </button>
               <button
                 onClick={handleDownload}
-                className="py-3 px-8 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded transition-all text-[15px] uppercase tracking-wider flex items-center gap-2 cursor-pointer"
+                className="py-3 px-8 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded transition-all text-lg uppercase tracking-wider flex items-center gap-2 cursor-pointer"
               >
                 <FileText className="w-4 h-4" />
                 <span>Download Brochure</span>
@@ -236,7 +236,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
               <button
                 key={key}
                 onClick={() => handleScrollToSection(key)}
-                className="flex-1 py-4 text-center font-sans text-xs font-bold tracking-wider text-gray-600 hover:text-[#005f6d] hover:bg-gray-50 border-r border-gray-100 last:border-0 transition-colors uppercase cursor-pointer"
+                className="flex-1 py-4 text-center font-sans text-sm font-bold tracking-wider text-gray-600 hover:text-[#005f6d] hover:bg-gray-50 border-r border-gray-100 last:border-0 transition-colors uppercase cursor-pointer"
               >
                 {key}
               </button>
@@ -417,7 +417,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
               <h3 className="font-sans text-[22px] font-bold text-gray-900 uppercase mb-3">
                 Configurable Options
               </h3>
-              <p className="text-xs text-gray-500 mb-6 font-semibold">Select your process modifications below to automatically include them in your technical RFQ scoping brief.</p>
+              <p className="text-sm text-gray-500 mb-6 font-semibold">Select your process modifications below to automatically include them in your technical RFQ scoping brief.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {product.options.map((opt) => {
                   const isSelected = !!selectedOptions[opt.name];
@@ -432,14 +432,14 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-sans text-sm font-bold text-gray-900 uppercase">{opt.name}</h4>
+                        <h4 className="font-sans text-base font-bold text-gray-900 uppercase">{opt.name}</h4>
                         <div className={`w-4 h-4 rounded border flex items-center justify-center ${
                           isSelected ? 'bg-[#005f6d] border-[#005f6d] text-white' : 'border-gray-300'
                         }`}>
                           {isSelected && <span className="text-[10px] font-bold">✓</span>}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">{opt.desc}</p>
+                      <p className="text-sm text-gray-500">{opt.desc}</p>
                     </div>
                   );
                 })}
@@ -449,7 +449,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
             <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase mb-4 text-center">
               Request Technical Quote
             </h2>
-            <p className="text-xs text-gray-500 text-center mb-8">
+            <p className="text-sm text-gray-500 text-center mb-8">
               Submit your project parameters and options below to receive an engineering datasheet proposal response.
             </p>
 
@@ -457,7 +457,7 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
               <div className="p-6 bg-green-50 border border-green-200 rounded-lg flex flex-col items-center gap-3">
                 <CheckCircle className="w-12 h-12 text-green-500" />
                 <h3 className="font-sans text-base font-bold text-green-800 uppercase">Enquiry Submitted Successfully</h3>
-                <p className="text-xs text-green-600 text-center font-semibold">
+                <p className="text-sm text-green-600 text-center font-semibold">
                   Flow Force engineers will review your selected options ({getSelectedOptionsString() || 'None'}) and contact you within 24 business hours.
                 </p>
               </div>
@@ -465,88 +465,88 @@ export default function ProductDetail({ productId, onBack, onNavigateProduct }) 
               <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Contact Name *</label>
+                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Contact Name *</label>
                     <input
                       type="text"
                       name="name"
                       required
                       value={formData.name}
                       onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-[#005f6d] focus:bg-white"
+                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Company *</label>
+                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Company *</label>
                     <input
                       type="text"
                       name="company"
                       required
                       value={formData.company}
                       onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-[#005f6d] focus:bg-white"
+                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Email *</label>
+                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Email *</label>
                     <input
                       type="email"
                       name="email"
                       required
                       value={formData.email}
                       onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-[#005f6d] focus:bg-white"
+                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Phone</label>
+                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Phone</label>
                     <input
                       type="text"
                       name="phone"
                       value={formData.phone}
                       onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-[#005f6d] focus:bg-white"
+                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Product Selected</label>
+                  <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Product Selected</label>
                   <input
                     type="text"
                     readOnly
                     value={product.name}
-                    className="w-full py-2.5 px-3 bg-gray-100 border border-gray-200 rounded text-sm text-gray-500 font-bold uppercase focus:outline-none"
+                    className="w-full py-2.5 px-3 bg-gray-100 border border-gray-200 rounded text-base text-gray-500 font-bold uppercase focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Configured Upgrades</label>
+                  <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Configured Upgrades</label>
                   <textarea
                     readOnly
                     rows="2"
                     value={getSelectedOptionsString() || 'No upgrades selected.'}
-                    className="w-full py-2.5 px-3 bg-gray-100 border border-gray-200 rounded text-xs text-gray-500 leading-normal focus:outline-none"
+                    className="w-full py-2.5 px-3 bg-gray-100 border border-gray-200 rounded text-sm text-gray-500 leading-normal focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-mono text-[10px] text-gray-500 uppercase font-bold block">Process Details / Application Notes</label>
+                  <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Process Details / Application Notes</label>
                   <textarea
                     name="additionalInfo"
                     rows="3"
                     value={formData.additionalInfo}
                     onChange={handleFormChange}
                     placeholder="Enter pressure limits, chemical attributes, operating duty cycles, etc."
-                    className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-[#005f6d] focus:bg-white"
+                    className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded uppercase text-[15px] tracking-wider transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded uppercase text-lg tracking-wider transition-colors cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
                   <span>Submit Engineering RFQ</span>

@@ -124,29 +124,83 @@ function SifterModel3D({ mode, isLowEnd }) {
       {/* Main Sieve Housing (slides out to the left) */}
       <group position={[housingOffset, 0, 0]}>
         {xray ? (
-          <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-            <cylinderGeometry args={[1.3, 1.3, 3.4, 32]} />
-            <meshPhysicalMaterial
-              transmission={0.9}
-              thickness={0.5}
-              roughness={0.1}
-              ior={1.4}
-              color="#0d9488"
-              emissive="#0d9488"
-              emissiveIntensity={0.1}
-              transparent
-              opacity={0.65}
-              side={THREE.DoubleSide}
-              clippingPlanes={sectionActive ? planes : undefined}
-              clipShadows={true}
-            />
-          </mesh>
+          <group>
+            <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+              <cylinderGeometry args={[1.3, 1.3, 3.4, 32]} />
+              <meshPhysicalMaterial
+                transmission={0.9}
+                thickness={0.5}
+                roughness={0.1}
+                ior={1.4}
+                color="#0d9488"
+                emissive="#0d9488"
+                emissiveIntensity={0.1}
+                transparent
+                opacity={0.65}
+                side={THREE.DoubleSide}
+                clippingPlanes={sectionActive ? planes : undefined}
+                clipShadows={true}
+              />
+            </mesh>
+          </group>
         ) : (
-          <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
-            {/* Cutaway layout exposing interior components */}
-            <cylinderGeometry args={[1.3, 1.3, 3.4, 32, 1, false, 0, Math.PI * 1.55]} />
-            <meshStandardMaterial {...matStainless} />
-          </mesh>
+          <group>
+            <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
+              {/* Cutaway layout exposing interior components */}
+              <cylinderGeometry args={[1.3, 1.3, 3.4, 32, 1, false, 0, Math.PI * 1.55]} />
+              <meshStandardMaterial {...matStainless} />
+            </mesh>
+
+            {/* Boxy mounting bracket / rear support structure on the right side of the main body */}
+            <mesh position={[1.65, 0, 0]} castShadow>
+              <boxGeometry args={[0.3, 2.6, 2.6]} />
+              <meshStandardMaterial {...matStainless} />
+            </mesh>
+
+            {/* Door 1 (left side door on the front face of housing) */}
+            <group position={[-0.7, 0, 1.25]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.9, 0.9, 0.15]} />
+                <meshStandardMaterial {...matStainless} roughness={0.3} />
+              </mesh>
+              {/* Blue border/frame around the door representing the seal/latch plate */}
+              <mesh position={[0, 0, -0.06]} castShadow>
+                <boxGeometry args={[1.0, 1.0, 0.05]} />
+                <meshStandardMaterial color="#005f6d" metalness={0.9} roughness={0.1} />
+              </mesh>
+              {/* Lever handles/latches */}
+              <mesh position={[-0.4, 0, 0.09]} rotation={[0, 0, Math.PI / 4]} castShadow>
+                <cylinderGeometry args={[0.04, 0.04, 0.35, 8]} />
+                <meshStandardMaterial color="#475569" metalness={0.9} />
+              </mesh>
+              <mesh position={[0.4, 0, 0.09]} rotation={[0, 0, -Math.PI / 4]} castShadow>
+                <cylinderGeometry args={[0.04, 0.04, 0.35, 8]} />
+                <meshStandardMaterial color="#475569" metalness={0.9} />
+              </mesh>
+            </group>
+
+            {/* Door 2 (right side door on the front face of housing) */}
+            <group position={[0.5, 0, 1.25]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.9, 0.9, 0.15]} />
+                <meshStandardMaterial {...matStainless} roughness={0.3} />
+              </mesh>
+              {/* Blue border/frame around the door */}
+              <mesh position={[0, 0, -0.06]} castShadow>
+                <boxGeometry args={[1.0, 1.0, 0.05]} />
+                <meshStandardMaterial color="#005f6d" metalness={0.9} roughness={0.1} />
+              </mesh>
+              {/* Lever handles/latches */}
+              <mesh position={[-0.4, 0, 0.09]} rotation={[0, 0, Math.PI / 4]} castShadow>
+                <cylinderGeometry args={[0.04, 0.04, 0.35, 8]} />
+                <meshStandardMaterial color="#475569" metalness={0.9} />
+              </mesh>
+              <mesh position={[0.4, 0, 0.09]} rotation={[0, 0, -Math.PI / 4]} castShadow>
+                <cylinderGeometry args={[0.04, 0.04, 0.35, 8]} />
+                <meshStandardMaterial color="#475569" metalness={0.9} />
+              </mesh>
+            </group>
+          </group>
         )}
 
         {/* Solid Section Cap (closes hollow visual interior during Section View) */}
@@ -158,21 +212,21 @@ function SifterModel3D({ mode, isLowEnd }) {
         )}
       </group>
 
-      {/* Conical Inlet Hopper (moves up) */}
-      <mesh position={[-1.3, 1.3 + inletOffset, 0]} castShadow>
-        <cylinderGeometry args={[0.6, 0.45, 0.9, 16]} />
+      {/* Top Inlet Hopper / Port (moves up in exploded mode) */}
+      <mesh position={[0.5, 1.4 + inletOffset, 0]} castShadow>
+        <cylinderGeometry args={[0.55, 0.45, 0.7, 16]} />
         <meshStandardMaterial {...matStainless} />
       </mesh>
 
-      {/* Oversize Discharge Funnel (moves down) */}
-      <mesh position={[-1.3, -1.3 - outletOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
-        <cylinderGeometry args={[0.55, 0.35, 1.0, 16]} />
+      {/* Hopper 1: Small discharge hopper on the far left (moves down in exploded mode) */}
+      <mesh position={[-1.4, -1.3 - outletOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
+        <cylinderGeometry args={[0.5, 0.22, 1.0, 16]} />
         <meshStandardMaterial {...matStainless} />
       </mesh>
 
-      {/* Fines Funnel Discharge (moves down) */}
-      <mesh position={[1.1, -1.3 - outletOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
-        <cylinderGeometry args={[0.55, 0.3, 1.0, 16]} />
+      {/* Hopper 2: Large discharge hopper in the middle-left (moves down in exploded mode) */}
+      <mesh position={[-0.3, -1.3 - outletOffset, 0]} rotation={[0, 0, Math.PI]} castShadow>
+        <cylinderGeometry args={[0.75, 0.35, 1.0, 16]} />
         <meshStandardMaterial {...matStainless} />
       </mesh>
 
@@ -218,20 +272,22 @@ function SifterModel3D({ mode, isLowEnd }) {
         })}
       </group>
 
-      {/* Drive Motor (moves right) */}
-      <group position={[2.3 + motorOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.65, 0.65, 1.2, 16]} />
-          <meshStandardMaterial {...matPainted} />
+      {/* Drive Motor (moves horizontally parallel under the right side of main chamber) */}
+      <group position={[1.1 + motorOffset, -0.9, 0.75]} rotation={[0, 0, 0]}>
+        <mesh castShadow rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.38, 0.38, 1.1, 16]} />
+          <meshStandardMaterial color="#27272a" metalness={0.8} roughness={0.3} />
         </mesh>
-        {[0.4, 0.2, 0, -0.2, -0.4].map((yOffset, i) => (
-          <mesh key={i} position={[0, yOffset, 0]} castShadow>
-            <cylinderGeometry args={[0.72, 0.72, 0.03, 16]} />
-            <meshStandardMaterial {...matRubber} />
+        {/* Fins */}
+        {[0.3, 0.1, -0.1, -0.3].map((xOffset, i) => (
+          <mesh key={i} position={[xOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[0.42, 0.42, 0.04, 16]} />
+            <meshStandardMaterial color="#18181b" roughness={0.8} />
           </mesh>
         ))}
-        <mesh position={[0, 0.2, 0.6]} castShadow>
-          <boxGeometry args={[0.3, 0.3, 0.3]} />
+        {/* Connection bracket to main chamber / mounting plate */}
+        <mesh position={[0, 0.4, -0.1]} castShadow>
+          <boxGeometry args={[0.3, 0.4, 0.3]} />
           <meshStandardMaterial {...matPainted} />
         </mesh>
       </group>
@@ -287,12 +343,12 @@ export default function Product3DViewer() {
 
   // Hotspot details
   const hotspots = [
-    { name: 'Material Inlet', pos: [-1.3, 1.5, 0], mat: 'Sanitary FDA Tri-Clamp', desc: 'Conical feed hopper inlet fitted with quick-release tri-clamp couplings.' },
+    { name: 'Material Inlet', pos: [0.5, 1.7, 0], mat: 'Sanitary FDA Tri-Clamp', desc: 'Conical feed hopper inlet fitted with quick-release tri-clamp couplings.' },
     { name: 'Paddle Assembly', pos: [0, 0.5, 0.6], mat: 'Stainless Steel 316L (Polished)', desc: 'High-speed rotating paddles that fluidize powder against the screen mesh.' },
-    { name: 'Tool-Free Screen Access', pos: [-0.6, 0, 1.2], mat: 'ASME-Grade SS316L', desc: 'Cantilever end door allowing full screen removal and inspection in under 60 seconds.' },
-    { name: 'Discharge Outlet', pos: [-1.3, -1.5, 0], mat: 'Stainless Steel 316L', desc: 'Separate gravity-fed discharge funnels for fines and oversize product.' },
-    { name: 'Industrial Drive Motor', pos: [2.3, 0.3, 0.5], mat: 'Painted Alloy Casing', desc: 'Continuous duty motor configured to specific plant operating speeds.' },
-    { name: 'Outboard Bearing Assembly', pos: [1.6, 0, 0.5], mat: 'Outboard Roller Unit', desc: 'Double-sealed and gas-purged shaft seal housing preventing product contamination.' }
+    { name: 'Tool-Free Screen Access', pos: [-0.1, 0, 1.45], mat: 'ASME-Grade SS316L', desc: 'Dual quick-access latch doors on the front face allowing inspection and screen swap.' },
+    { name: 'Discharge Outlet', pos: [-0.85, -1.8, 0], mat: 'Stainless Steel 316L', desc: 'Separate gravity-fed discharge funnels for fines and oversize product.' },
+    { name: 'Industrial Drive Motor', pos: [1.1, -1.0, 1.1], mat: 'Painted Alloy Casing', desc: 'Continuous duty motor configured horizontally underneath the chamber.' },
+    { name: 'Outboard Bearing Assembly', pos: [1.65, 0, 0.6], mat: 'Outboard Roller Unit', desc: 'Double-sealed and gas-purged shaft seal housing preventing product contamination.' }
   ];
 
   // Handle interaction pause & delay resume auto-rotate
@@ -415,7 +471,7 @@ export default function Product3DViewer() {
                     
                     {/* Tooltip */}
                     {(hoveredHotspot === hot.name || activeHotspot?.name === hot.name) && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-gray-900/95 text-white text-[10px] font-sans font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap pointer-events-none border border-white/10 z-50">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900/95 text-white text-xs font-sans font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap pointer-events-none border border-white/10 z-50">
                         {hot.name}
                       </div>
                     )}
@@ -436,24 +492,24 @@ export default function Product3DViewer() {
 
           {/* Active Hotspot info panel */}
           {activeHotspot && (
-            <div className="absolute bottom-4 left-4 right-4 md:right-auto md:w-80 bg-white border border-gray-200 rounded p-4 shadow-md z-10 text-left animate-in fade-in slide-in-from-bottom-2 duration-200">
-              <div className="flex justify-between items-start mb-2 border-b border-gray-100 pb-1.5">
+            <div className="absolute bottom-4 left-4 right-4 md:right-auto md:w-80 bg-white border border-gray-200 rounded p-4.5 shadow-md z-10 text-left animate-in fade-in slide-in-from-bottom-2 duration-200">
+              <div className="flex justify-between items-start mb-2.5 border-b border-gray-100 pb-2">
                 <div>
-                  <h4 className="font-sans text-sm font-bold text-gray-900 uppercase">
+                  <h4 className="font-sans text-base font-bold text-gray-900 uppercase">
                     {activeHotspot.name}
                   </h4>
-                  <span className="font-mono text-[9px] text-[#005f6d] font-bold uppercase">
+                  <span className="font-mono text-xs text-[#005f6d] font-bold uppercase">
                     Material: {activeHotspot.mat}
                   </span>
                 </div>
                 <button
                   onClick={() => setActiveHotspot(null)}
-                  className="text-gray-400 hover:text-gray-600 font-bold text-xs"
+                  className="text-gray-400 hover:text-gray-600 font-bold text-sm"
                 >
                   ✕
                 </button>
               </div>
-              <p className="text-xs text-gray-600 leading-normal">
+              <p className="text-sm text-gray-600 leading-normal">
                 {activeHotspot.desc}
               </p>
             </div>
@@ -461,9 +517,9 @@ export default function Product3DViewer() {
         </div>
 
         {/* View Mode controls bottom panel */}
-        <div className="border-t border-gray-100 px-4 py-2 bg-gray-50 flex flex-wrap gap-2 items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="font-mono text-[10px] text-gray-500 uppercase tracking-wider font-bold mr-1">
+        <div className="border-t border-gray-100 px-4 py-3 bg-gray-50 flex flex-wrap gap-2.5 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-gray-600 uppercase tracking-wider font-black mr-1">
               Mode:
             </span>
             {[
@@ -476,7 +532,7 @@ export default function Product3DViewer() {
               <button
                 key={mode.id}
                 onClick={() => setViewMode(mode.id)}
-                className={`py-1 px-3 rounded text-[10px] font-sans font-bold uppercase tracking-wider border transition-all cursor-pointer ${
+                className={`py-2 px-4 rounded text-xs font-sans font-bold uppercase tracking-wider border transition-all cursor-pointer ${
                   viewMode === mode.id
                     ? 'bg-[#005f6d] text-white border-[#005f6d]'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-100'

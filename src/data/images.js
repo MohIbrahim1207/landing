@@ -57,6 +57,7 @@ export const images = {
     bulk_material_handling: "/images/products/bulk_material_handling.png",
     rotaryValve: "/images/products/rotary_valve.png",
     bucketElevator: "/images/products/conveying.png",
+    centrifugalSifter: "/images/products/centrifugal_sifter.png",
 
     // Dust collection
     dustCollector: "/images/products/dust_collector.png",

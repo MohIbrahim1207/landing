@@ -5,7 +5,7 @@ export const PRODUCTS = [
     id: 'centrifugal-sieving',
     name: 'CENTRIFUGAL SIEVING SYSTEM',
     category: 'SIFTING & SEPARATION',
-    image: images.products.homogenizer, // using the sifter image
+    image: images.products.centrifugalSifter, // using the sifter image
     highlights: [
       'Uses a set of high-speed rotating paddles',
       'Offered in 3 sizes: 90-C, 180-C, and 360-C',

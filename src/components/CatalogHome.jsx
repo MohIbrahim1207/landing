@@ -98,10 +98,10 @@ export default function CatalogHome({ onViewProduct }) {
       <div className="max-w-4xl mx-auto w-full">
         {/* Header Section */}
         <div className="border-b border-gray-200 pb-8 mb-16 text-center">
-          <span className="font-mono text-xs tracking-wider text-gray-500 uppercase block mb-2 font-bold">
+          <span className="font-mono text-sm tracking-wider text-gray-500 uppercase block mb-2 font-bold">
             B2B INDUSTRIAL CATALOG
           </span>
-          <h1 className="font-sans text-[32px] md:text-[40px] font-bold text-gray-900 tracking-tight leading-tight uppercase">
+          <h1 className="font-sans text-[32px] md:text-[44px] font-bold text-gray-900 tracking-tight leading-tight uppercase">
             FLOW FORCE EQUIPMENT PORTFOLIO
           </h1>
         </div>
@@ -136,13 +136,13 @@ export default function CatalogHome({ onViewProduct }) {
                 src={singleProduct.image}
                 srcSet={`${singleProduct.image} 1x, ${singleProduct.image} 2x, ${singleProduct.image} 3x`}
                 alt={singleProduct.name}
-                className="max-w-[85%] max-h-[85%] object-contain mx-auto transition-transform duration-300 pointer-events-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]"
+                className="max-w-[85%] max-h-[85%] object-contain mx-auto transition-transform duration-300 pointer-events-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)] scale-[2.8]"
                 style={{ imageRendering: 'high-quality' }}
                 loading="lazy"
               />
 
               {/* Hover Indicator for zooming */}
-              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xs text-[#baf2ff] border border-[#baf2ff]/30 text-xs font-mono py-1.5 px-3 rounded flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xs text-[#baf2ff] border border-[#baf2ff]/30 text-sm font-mono py-1.5 px-3 rounded flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Maximize2 className="w-3.5 h-3.5" />
                 <span>CLICK TO ZOOM</span>
               </div>
@@ -151,16 +151,16 @@ export default function CatalogHome({ onViewProduct }) {
             {/* Product Info Block */}
             <div className="p-8 flex flex-col flex-grow justify-between gap-6">
               <div>
-                <span className="font-mono text-[10px] text-[#005f6d] tracking-widest uppercase font-bold block mb-2">
+                <span className="font-mono text-sm text-[#005f6d] tracking-widest uppercase font-bold block mb-2">
                   Featured Equipment
                 </span>
-                <h2 className="font-sans text-[22px] font-bold text-gray-900 tracking-tight uppercase mb-4 leading-snug">
+                <h2 className="font-sans text-3xl font-bold text-gray-900 tracking-tight uppercase mb-4 leading-snug">
                   {singleProduct.name}
                 </h2>
-                <ul className="space-y-3 mb-6">
+                <ul className="space-y-3.5 mb-6">
                   {singleProduct.highlights.map((highlight, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-[15px] text-gray-600 leading-[1.6]">
-                      <span className="text-[#005f6d] font-bold mt-1 text-xs">•</span>
+                    <li key={idx} className="flex items-start gap-2.5 text-lg text-gray-600 leading-[1.6]">
+                      <span className="text-[#005f6d] font-bold mt-1 text-sm">•</span>
                       <span>{highlight}</span>
                     </li>
                   ))}
@@ -168,17 +168,17 @@ export default function CatalogHome({ onViewProduct }) {
               </div>
 
               {/* Actions Panel */}
-              <div className="flex flex-col gap-3 pt-6 border-t border-gray-100 mt-auto">
+              <div className="flex flex-col gap-3.5 pt-6 border-t border-gray-100 mt-auto">
                 <button
                   onClick={() => onViewProduct(singleProduct.id)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded text-[15px] uppercase tracking-wider transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded text-lg uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   <Eye className="w-4 h-4" />
                   <span>View Product</span>
                 </button>
                 <button
                   onClick={(e) => handleDownload(e, singleProduct.brochure, singleProduct.name)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded text-[15px] uppercase tracking-wider transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded text-lg uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   <FileText className="w-4 h-4" />
                   <span>Download Brochure</span>
