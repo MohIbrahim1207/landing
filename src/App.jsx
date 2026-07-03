@@ -68,11 +68,11 @@ function App() {
         {/* Center Title / Subtitle */}
         <div className="text-center hidden md:block">
           <h1 className="font-display font-black text-4xl lg:text-5xl tracking-widest uppercase leading-none" style={{ color: 'var(--text-heading)' }}>
-            CENTRIFUGAL SIFTER
+            CENTRIFUGAL SIEVING
           </h1>
-          <div className="text-xs tracking-[0.2em] font-display uppercase font-bold mt-2">
-            <span style={{ color: 'var(--text-body)' }}>PRECISION</span>
-            <span style={{ color: 'var(--accent)' }}> SEPARATION. MAXIMUM PERFORMANCE.</span>
+          <div className="text-xs md:text-sm tracking-[0.2em] font-display uppercase font-bold mt-2">
+            <span style={{ color: 'var(--text-body)' }}>SIEVMASTER </span>
+            <span style={{ color: 'var(--accent)' }}>ROTA RANGE</span>
           </div>
         </div>
 

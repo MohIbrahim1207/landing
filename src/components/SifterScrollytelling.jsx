@@ -178,7 +178,7 @@ function SifterScrollytelling({ headerHeight = 80 }) {
         <div className="max-w-4xl mx-auto px-6 space-y-16 text-center">
           <div className="glass-panel p-8">
             <h2 className="font-display font-black text-4xl md:text-6xl tracking-widest uppercase mb-4" style={{ color: 'var(--text-heading)' }}>
-              Flow Force RG Sifter
+              Sievmaster Rota Range
             </h2>
             <p className="font-mono text-sm md:text-base tracking-[0.2em] uppercase font-bold" style={{ color: 'var(--accent)' }}>
               Precision, in every particle.
@@ -236,7 +236,7 @@ function SifterScrollytelling({ headerHeight = 80 }) {
             >
               <div className="glass-panel p-6 md:p-10 inline-flex flex-col items-center pointer-events-auto">
                 <h2 className="font-display font-black text-4xl md:text-7xl tracking-widest uppercase mb-4" style={{ color: 'var(--text-heading)' }}>
-                  Flow Force RG Sifter
+                  Sievmaster Rota Range
                 </h2>
                 <p className="font-mono text-sm md:text-lg tracking-[0.25em] uppercase font-bold" style={{ color: 'var(--accent)' }}>
                   Precision, in every particle.
@@ -305,7 +305,7 @@ function SifterScrollytelling({ headerHeight = 80 }) {
                     className="py-4 px-10 rounded-full font-display text-xs md:text-sm font-bold tracking-[0.2em] uppercase transition-all shadow-xl hover:scale-105 cursor-pointer"
                     style={{ backgroundColor: 'var(--accent)', color: '#fff' }}
                   >
-                    Experience the RG Sifter
+                    Experience the Rota Range
                   </button>
                   <a href="#" className="font-mono text-[10px] uppercase tracking-widest underline underline-offset-4 transition-colors mt-2" style={{ color: 'var(--text-body)' }}>
                     See full specs
