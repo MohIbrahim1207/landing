@@ -25,8 +25,9 @@ html {
 }
 
 body {
-  background-color: #ffffff;
-  color: #1a1e24;
+  background-color: #120a03;
+  background-image: radial-gradient(ellipse at center, #3a1d05 0%, #1a0e03 60%, #000000 100%);
+  color: #ffffff;
   font-family: "Inter", sans-serif;
   font-size: 16px;
   line-height: 1.7;
@@ -41,44 +42,44 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #ffffff;
+  background: #0f0802;
   border-left: 1px solid rgba(245, 130, 12, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #d97706 0%, #f5820c 100%);
-  border: 2px solid #ffffff;
+  border: 2px solid #0f0802;
   border-radius: 999px;
-  box-shadow: 0 0 10px rgba(245, 130, 12, 0.35);
+  box-shadow: 0 0 10px rgba(245, 130, 12, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #f5820c;
 }
 
-/* Gold/Warm Blueprint Overlay - Calibrated for Light Theme */
+/* Gold/Warm Blueprint Overlay */
 .bg-blueprint-grid-gold {
   background-size: 60px 60px;
   background-image: 
-    linear-gradient(to right, rgba(245, 130, 12, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(245, 130, 12, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(245, 130, 12, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 130, 12, 0.02) 1px, transparent 1px);
 }
 
 .bg-blueprint-subgrid-gold {
   background-size: 12px 12px;
   background-image: 
-    linear-gradient(to right, rgba(245, 130, 12, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(245, 130, 12, 0.015) 1px, transparent 1px);
+    linear-gradient(to right, rgba(245, 130, 12, 0.006) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 130, 12, 0.006) 1px, transparent 1px);
 }
 
-/* Premium Warm Glassmorphism Panels - Frosted White Glass */
+/* Premium Warm Glassmorphism Panels */
 .glass-panel-gold {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(245, 130, 12, 0.28);
+  background: rgba(20, 12, 4, 0.55);
+  border: 1px solid rgba(245, 130, 12, 0.35);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 0 40px rgba(245, 130, 12, 0.08);
 }
 
 .glass-panel-gold-hover {
@@ -86,15 +87,16 @@ body {
 }
 
 .glass-panel-gold-hover:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(20, 12, 4, 0.7);
   border-color: #f5820c;
   box-shadow: 
-    0 15px 40px rgba(245, 130, 12, 0.12);
+    0 0 50px rgba(245, 130, 12, 0.2),
+    inset 0 0 15px rgba(245, 130, 12, 0.05);
 }
 
-/* Vignette Ambient Shadow - Faint shadow */
+/* Vignette Ambient Shadow */
 .bg-vignette-ambient {
-  background: radial-gradient(ellipse at center, transparent 70%, rgba(0, 0, 0, 0.03) 100%);
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.8) 100%);
   pointer-events: none;
 }
 
@@ -168,29 +170,4 @@ body {
 video::-webkit-media-controls-volume-slider,
 video::-webkit-media-controls-mute-button {
   display: none !important;
-}
-
-/* Premium scroll reveal transitions */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
-  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-
-.scroll-reveal.active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.delay-100 {
-  transition-delay: 100ms;
-}
-
-.delay-300 {
-  transition-delay: 300ms;
-}
-
-.delay-500 {
-  transition-delay: 500ms;
 }

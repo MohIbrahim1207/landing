@@ -28,12 +28,12 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-12 text-center bg-red-50 border border-red-200 rounded-2xl m-6 max-w-2xl mx-auto z-50 relative">
-          <h2 className="text-xl font-bold text-red-800 uppercase tracking-widest mb-2">Cockpit System Offline</h2>
-          <p className="text-sm text-red-600 font-mono mb-6">{this.state.error?.toString()}</p>
+        <div className="p-12 text-center bg-[#1a0e03] border border-[#f5820c]/40 rounded-2xl m-6 max-w-2xl mx-auto z-50 relative">
+          <h2 className="text-xl font-bold text-[#f5820c] uppercase tracking-widest mb-2">Cockpit System Offline</h2>
+          <p className="text-sm text-red-400 font-mono mb-6">{this.state.error?.toString()}</p>
           <button 
             onClick={() => this.setState({ hasError: false })}
-            className="px-6 py-3 bg-red-800 text-white rounded font-bold uppercase tracking-widest text-xs cursor-pointer hover:bg-red-900 transition-all"
+            className="px-6 py-3 bg-[#f5820c] text-[#120a03] rounded font-bold uppercase tracking-widest text-xs cursor-pointer hover:bg-[#ff9900] transition-all"
           >
             Reboot Interface
           </button>
@@ -102,7 +102,7 @@ function ProductDetailCockpit({ productId, onBack }) {
   const [isRunning, setIsRunning] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [isVisible, setIsVisible] = useState(false);
+
 
   const videoRef = useRef(null);
 
@@ -140,18 +140,7 @@ function ProductDetailCockpit({ productId, onBack }) {
     };
   }, [isMuted]);
 
-  // Reliable scroll trigger for panel fade-ins
-  useEffect(() => {
-    const handleScroll = () => {
-      // Trigger animations as soon as scroll starts down (e.g. past 250px)
-      if (window.scrollY > 250) {
-        setIsVisible(true);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Trigger immediately if already scrolled on mount
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
 
   // Auto-cycle timeline progress when running
   const autoPlayInterval = useRef(null);
@@ -205,26 +194,26 @@ function ProductDetailCockpit({ productId, onBack }) {
   };
 
   return (
-    <div className="bg-[#ffffff] min-h-screen text-[#1a1e24] flex flex-col justify-between font-sans overflow-x-hidden relative selection:bg-[#f5820c] selection:text-[#ffffff] pb-6">
-      {/* Volumetric background grid overlays for light theme */}
-      <div className="absolute inset-0 bg-blueprint-grid-gold opacity-10 pointer-events-none z-0" />
-      <div className="absolute inset-0 bg-blueprint-subgrid-gold opacity-15 pointer-events-none z-0" />
-      <div className="light-beam-overlay z-0 opacity-40" />
+    <div className="bg-[#120a03] min-h-screen text-[#ffffff] flex flex-col justify-between font-sans overflow-x-hidden relative selection:bg-[#f5820c] selection:text-[#120a03] pb-6">
+      {/* Volumetric background grid overlays for dark theme */}
+      <div className="absolute inset-0 bg-blueprint-grid-gold opacity-15 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-blueprint-subgrid-gold opacity-10 pointer-events-none z-0" />
+      <div className="light-beam-overlay z-0" />
       <div className="absolute inset-0 bg-vignette-ambient z-10" />
 
       {/* ─── HEADER ROW (~80px) ─── */}
-      <header className="fixed top-0 left-0 w-full z-30 pt-4 px-6 md:px-12 flex items-center justify-between gap-6 border-b border-transparent pb-4 bg-transparent">
+      <header className="fixed top-0 left-0 w-full z-40 pt-4 px-6 md:px-12 flex items-center justify-between gap-6 border-b border-[rgba(245,130,12,0.15)] pb-4 bg-[#120a03]/85 backdrop-blur-md">
         
         {/* Left Logo / Wordmark */}
         <div className="flex items-center gap-3.5 cursor-pointer" onClick={onBack}>
-          <div className="w-12 h-12 bg-[#f5820c] rounded-lg flex items-center justify-center font-display font-black text-[#ffffff] text-xl shadow-[0_0_15px_rgba(245,130,12,0.45)]">
+          <div className="w-12 h-12 bg-[#f5820c] rounded-lg flex items-center justify-center font-display font-black text-[#120a03] text-xl shadow-[0_0_15px_rgba(245,130,12,0.45)]">
             FF
           </div>
           <div className="text-left leading-tight">
-            <span className="font-display font-black text-base tracking-widest text-[#1a1e24] block uppercase">
+            <span className="font-display font-black text-base tracking-widest text-[#ffffff] block uppercase">
               FLOW FORCE
             </span>
-            <span className="font-display text-[9px] tracking-[0.15em] text-[#d97706] uppercase font-bold block mt-0.5">
+            <span className="font-display text-[9px] tracking-[0.15em] text-[#f5b866] uppercase font-bold block mt-0.5">
               ENGINEERING EXCELLENCE
             </span>
           </div>
@@ -232,11 +221,11 @@ function ProductDetailCockpit({ productId, onBack }) {
 
         {/* Center Title / Subtitle */}
         <div className="text-center hidden md:block">
-          <h1 className="font-display font-black text-4xl lg:text-5xl tracking-widest text-[#1a1e24] uppercase leading-none">
+          <h1 className="font-display font-black text-4xl lg:text-5xl tracking-widest text-[#ffffff] uppercase leading-none">
             CENTRIFUGAL SIFTER
           </h1>
           <div className="text-xs tracking-[0.2em] font-display uppercase font-bold mt-2">
-            <span className="text-[#1a1e24]">PRECISION</span>
+            <span className="text-[#ffffff]">PRECISION</span>
             <span className="text-[#f5820c]"> SEPARATION. MAXIMUM PERFORMANCE.</span>
           </div>
         </div>
@@ -245,19 +234,19 @@ function ProductDetailCockpit({ productId, onBack }) {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsMuted(!isMuted)}
-            className="w-10 h-10 rounded-full border border-[rgba(26,30,36,0.2)] hover:border-[#f5820c] flex items-center justify-center text-[#1a1e24] hover:text-[#f5820c] transition-all bg-white/60 backdrop-blur-sm cursor-pointer"
+            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
           >
             <Volume2 className="w-4 h-4" />
           </button>
           <button 
             onClick={handleToggleFullscreen}
-            className="w-10 h-10 rounded-full border border-[rgba(26,30,36,0.2)] hover:border-[#f5820c] flex items-center justify-center text-[#1a1e24] hover:text-[#f5820c] transition-all bg-white/60 backdrop-blur-sm cursor-pointer"
+            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
           >
             <Maximize2 className="w-4 h-4" />
           </button>
           <button 
             onClick={onBack}
-            className="w-10 h-10 rounded-full border border-[rgba(26,30,36,0.2)] hover:border-[#f5820c] flex items-center justify-center text-[#1a1e24] hover:text-[#f5820c] transition-all bg-white/60 backdrop-blur-sm cursor-pointer"
+            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
@@ -268,12 +257,12 @@ function ProductDetailCockpit({ productId, onBack }) {
       <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-24 md:pt-28 z-20 relative">
         
         {/* ─── LEFT: PROCESS FLOW (3 COLS) ─── */}
-        <div className={`lg:col-span-3 flex flex-col justify-between glass-panel-gold rounded-2xl p-5 relative overflow-hidden select-none scroll-reveal delay-100 ${isVisible ? 'active' : ''}`}>
-          <div className="absolute top-0 right-0 p-2 font-mono text-[8px] text-[#f5820c]/40">FLOW_SYS</div>
+        <div className="lg:col-span-3 flex flex-col justify-between glass-panel-gold rounded-2xl p-5 relative overflow-hidden select-none">
+          <div className="absolute top-0 right-0 p-2 font-mono text-[8px] text-[#f5b866]/30">FLOW_SYS</div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="font-display text-base md:text-lg tracking-wider text-[#1a1e24] font-extrabold uppercase">
+              <span className="font-display text-base md:text-lg tracking-wider text-[#ffffff] font-extrabold uppercase">
                 PROCESS FLOW
               </span>
             </div>
@@ -281,15 +270,14 @@ function ProductDetailCockpit({ productId, onBack }) {
             {/* Live simulation banner */}
             <div className="flex items-center gap-1.5 mb-6">
               <span className={`w-2 h-2 rounded-full bg-[#f5820c] ${isRunning ? 'animate-pulse' : ''}`} />
-              <span className="font-mono text-xs text-[#f5820c] uppercase font-bold tracking-widest">
+              <span className="font-mono text-xs text-[#f5b866] uppercase font-bold tracking-widest">
                 {isRunning ? 'Live Simulation Active' : 'Simulation Paused'}
               </span>
             </div>
 
             {/* Vertical timeline steps */}
             <div className="relative space-y-7 text-left pl-3">
-              {/* Vertical line connecting steps (centered at left-25px to match w-8 circles) */}
-              <div className="absolute left-[25px] top-4 bottom-4 w-0.5 bg-[rgba(245,130,12,0.22)] z-0" />
+              <div className="absolute left-[25px] top-4 bottom-4 w-0.5 bg-[rgba(245,130,12,0.18)] z-0" />
               
               {TIMELINE_STEPS.map((step, idx) => {
                 const isActive = activeStep === idx;
@@ -302,19 +290,19 @@ function ProductDetailCockpit({ productId, onBack }) {
                     {/* Circle badge */}
                     <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-mono text-xs font-bold transition-all shrink-0 ${
                       isActive 
-                        ? 'bg-[#f5820c] border-[#f5820c] text-[#ffffff] shadow-[0_0_8px_rgba(245,130,12,0.55)]'
-                        : 'border-[rgba(245,130,12,0.35)] text-[#d97706] bg-[#ffffff] group-hover:border-[#f5820c]'
+                        ? 'bg-[#f5820c] border-[#f5820c] text-[#120a03] shadow-[0_0_8px_rgba(245,130,12,0.55)]'
+                        : 'border-[rgba(245,130,12,0.35)] text-[#f5b866] bg-[#120a03] group-hover:border-[#f5820c]'
                     }`}>
                       {step.num}
                     </div>
 
                     <div className="text-left">
                       <span className={`font-display text-sm md:text-base tracking-wider block font-bold transition-colors ${
-                        isActive ? 'text-[#f5820c]' : 'text-[#1a1e24] group-hover:text-[#d97706]'
+                        isActive ? 'text-[#f5820c]' : 'text-[#ffffff] group-hover:text-[#f5b866]'
                       }`}>
                         {step.name}
                       </span>
-                      <p className="font-sans text-xs md:text-sm text-gray-600 leading-normal mt-0.5">
+                      <p className="font-sans text-xs md:text-sm text-[#f5b866]/70 leading-normal mt-0.5">
                         {step.desc}
                       </p>
                     </div>
@@ -328,14 +316,14 @@ function ProductDetailCockpit({ productId, onBack }) {
           <div className="border-t border-[rgba(245,130,12,0.15)] pt-4 mt-6 grid grid-cols-2 gap-3">
             <button
               onClick={handleTogglePlay}
-              className="py-3 px-4 rounded border border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-white text-[#1a1e24] hover:text-[#f5820c] font-display text-xs tracking-widest font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+              className="py-3 px-4 rounded border border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-transparent text-[#ffffff] hover:text-[#f5820c] font-display text-xs tracking-widest font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Play className="w-3.5 h-3.5" />
               <span>{isRunning ? 'PAUSE' : 'PLAY'}</span>
             </button>
             <button
               onClick={handleRestart}
-              className="py-3 px-4 rounded border border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-white text-[#1a1e24] hover:text-[#f5820c] font-display text-xs tracking-widest font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+              className="py-3 px-4 rounded border border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-transparent text-[#ffffff] hover:text-[#f5820c] font-display text-xs tracking-widest font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>RESTART</span>
@@ -344,19 +332,19 @@ function ProductDetailCockpit({ productId, onBack }) {
         </div>
 
         {/* ─── CENTER: MEDIA STAGE (6 COLS) ─── */}
-        <div className={`lg:col-span-6 flex flex-col gap-4 relative justify-center scroll-reveal delay-300 ${isVisible ? 'active' : ''}`}>
+        <div className="lg:col-span-6 flex flex-col gap-4 relative justify-center">
           
           {/* Glowing Circular turntable platform */}
-          <div className="absolute w-[440px] h-[440px] rounded-full border border-[rgba(245,130,12,0.12)] bottom-22 left-1/2 -translate-x-1/2 flex items-center justify-center z-0 animate-turntable-glow pointer-events-none">
-            <div className="absolute w-[390px] h-[390px] rounded-full border border-[rgba(245,130,12,0.05)]" />
-            <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(245,130,12,0.04)_100%)]" />
+          <div className="absolute w-[440px] h-[440px] rounded-full border border-[rgba(245,130,12,0.15)] bottom-22 left-1/2 -translate-x-1/2 flex items-center justify-center z-0 animate-turntable-glow pointer-events-none">
+            <div className="absolute w-[390px] h-[390px] rounded-full border border-[rgba(245,130,12,0.06)]" />
+            <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(245,130,12,0.08)_100%)]" />
           </div>
 
           {/* Expanded Video Telemetry Frame */}
-          <div className="w-full h-[520px] border border-[rgba(245,130,12,0.2)] rounded-2xl overflow-hidden shadow-xl relative glass-panel-gold z-10">
-            <div className="absolute top-2.5 left-4.5 z-10 flex items-center gap-1.5 bg-[#ffffff]/90 border border-black/10 px-2.5 py-1.5 rounded-md">
+          <div className="w-full h-[520px] border border-[rgba(245,130,12,0.15)] rounded-2xl overflow-hidden shadow-2xl relative glass-panel-gold z-10">
+            <div className="absolute top-2.5 left-4.5 z-10 flex items-center gap-1.5 bg-[#120a03]/60 px-2.5 py-1.5 rounded-md">
               <span className="w-1.5 h-1.5 rounded-full bg-[#f5820c] animate-pulse" />
-              <span className="font-mono text-[9px] text-[#d97706] font-bold uppercase tracking-widest">
+              <span className="font-mono text-[9px] text-[#f5b866] font-bold uppercase tracking-widest">
                 TELEMETRY FEED // PROCESS LABS ANIMATION
               </span>
             </div>
@@ -416,8 +404,8 @@ function ProductDetailCockpit({ productId, onBack }) {
                         }}
                         className={`absolute pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-black shadow-lg transition-all duration-300 cursor-pointer z-30 ${
                           isActive 
-                            ? 'bg-[#f5820c] text-[#ffffff] scale-110 shadow-[0_0_15px_rgba(245,130,12,0.85)] border border-white' 
-                            : 'bg-white text-[#1a1e24] hover:scale-105 border border-[rgba(245,130,12,0.4)]'
+                            ? 'bg-[#f5820c] text-[#120a03] scale-110 shadow-[0_0_15px_rgba(245,130,12,0.85)] border border-white' 
+                            : 'bg-white text-[#120a03] hover:scale-105 border border-[rgba(245,130,12,0.4)]'
                         }`}
                       >
                         {step.num}
@@ -435,8 +423,8 @@ function ProductDetailCockpit({ productId, onBack }) {
                         }}
                         className={`absolute pointer-events-auto px-2.5 py-1 rounded border font-display text-[9px] tracking-[0.15em] font-black uppercase cursor-pointer transition-all duration-300 z-20 ${
                           isActive
-                            ? 'bg-[#f5820c] text-[#ffffff] border-[#f5820c] shadow-[0_0_10px_rgba(245,130,12,0.4)]'
-                            : 'bg-white text-[#d97706] border-[rgba(245,130,12,0.35)] hover:border-[#f5820c] hover:text-[#f5820c] shadow-sm'
+                            ? 'bg-[#f5820c] text-[#120a03] border-[#f5820c] shadow-[0_0_10px_rgba(245,130,12,0.4)]'
+                            : 'bg-[#120a03]/80 text-[#f5b866] border-[rgba(245,130,12,0.35)] hover:border-[#f5820c] hover:text-[#f5820c]'
                         }`}
                       >
                         {step.name}
@@ -451,12 +439,12 @@ function ProductDetailCockpit({ productId, onBack }) {
                           opacity: showOverlay ? 1 : 0,
                           visibility: showOverlay ? 'visible' : 'hidden',
                         }}
-                        className="absolute max-w-[200px] bg-white border border-[#f5820c] rounded-lg p-2.5 shadow-2xl transition-all duration-300 z-40 text-left pointer-events-none border-t-2"
+                        className="absolute max-w-[200px] bg-[#1a0e03] border border-[#f5820c] rounded-lg p-2.5 shadow-2xl transition-all duration-300 z-40 text-left pointer-events-none border-t-2"
                       >
                         <span className="font-display text-[10px] font-black text-[#f5820c] uppercase tracking-wider block mb-1">
                           {step.name}
                         </span>
-                        <p className="font-sans text-[10px] text-gray-700 leading-normal">
+                        <p className="font-sans text-[10px] text-[#f5b866]/80 leading-normal">
                           {step.desc}
                         </p>
                       </div>
@@ -474,21 +462,21 @@ function ProductDetailCockpit({ productId, onBack }) {
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-95"
+              className="w-full h-full object-cover opacity-90"
             />
           </div>
 
-          <div className="text-center font-mono text-[10px] md:text-xs text-[#d97706]/70 uppercase tracking-[0.2em] mt-8 mb-6 select-none animate-pulse">
+          <div className="text-center font-mono text-[10px] md:text-xs text-[#f5b866]/40 uppercase tracking-[0.2em] mt-8 mb-6 select-none animate-pulse">
             Images to be added soon. Please stay tuned.
           </div>
         </div>
 
         {/* ─── RIGHT: HIGHLIGHTS & OVERVIEW (3 COLS) ─── */}
-        <div className={`lg:col-span-3 flex flex-col justify-between gap-4 text-left scroll-reveal delay-500 ${isVisible ? 'active' : ''}`}>
+        <div className="lg:col-span-3 flex flex-col justify-between gap-4 text-left">
           
           {/* Card 1: Key Highlights */}
           <div className="glass-panel-gold rounded-2xl p-5 relative">
-            <span className="font-display text-sm md:text-base tracking-wider text-[#1a1e24] font-extrabold block mb-4 uppercase">
+            <span className="font-display text-sm md:text-base tracking-wider text-[#ffffff] font-extrabold block mb-4 uppercase">
               KEY HIGHLIGHTS
             </span>
             <div className="space-y-4">
@@ -500,12 +488,12 @@ function ProductDetailCockpit({ productId, onBack }) {
                 { title: 'FOOD & PHARMA GRADE', desc: 'SS316L high polish sanitary standard.', icon: <Shield className="w-5 h-5 text-[#f5820c]" /> }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-3.5 items-start">
-                  <div className="w-9 h-9 rounded-md border border-[rgba(245,130,12,0.35)] flex items-center justify-center shrink-0 bg-white">
+                  <div className="w-9 h-9 rounded-md border border-[rgba(245,130,12,0.35)] flex items-center justify-center shrink-0 bg-[#120a03]">
                     {item.icon}
                   </div>
                   <div className="text-left leading-normal">
-                    <span className="font-display text-xs md:text-sm tracking-wide block font-black text-[#1a1e24]">{item.title}</span>
-                    <span className="font-sans text-xs text-gray-600 block mt-0.5">{item.desc}</span>
+                    <span className="font-display text-xs md:text-sm tracking-wide block font-black text-[#ffffff]">{item.title}</span>
+                    <span className="font-sans text-xs text-[#f5b866]/70 block mt-0.5">{item.desc}</span>
                   </div>
                 </div>
               ))}
@@ -515,7 +503,7 @@ function ProductDetailCockpit({ productId, onBack }) {
           {/* Card 2: Machine Overview */}
           <div className="glass-panel-gold rounded-2xl p-5 relative flex flex-col justify-between gap-4">
             <div>
-              <span className="font-display text-sm md:text-base tracking-wider text-[#1a1e24] font-extrabold block mb-4 uppercase">
+              <span className="font-display text-sm md:text-base tracking-wider text-[#ffffff] font-extrabold block mb-4 uppercase">
                 MACHINE OVERVIEW
               </span>
               <div className="space-y-2.5 font-mono text-xs md:text-sm">
@@ -528,7 +516,7 @@ function ProductDetailCockpit({ productId, onBack }) {
                   { label: 'Material', val: 'SS 304 / SS 316' }
                 ].map((spec, i) => (
                   <div key={i} className="flex justify-between py-1.5 border-b border-[rgba(245,130,12,0.08)] last:border-0">
-                    <span className="text-gray-500 uppercase font-semibold">{spec.label}</span>
+                    <span className="text-gray-400 uppercase font-semibold">{spec.label}</span>
                     <span className="text-[#f5820c] font-black uppercase">{spec.val}</span>
                   </div>
                 ))}
@@ -538,7 +526,7 @@ function ProductDetailCockpit({ productId, onBack }) {
 
           {/* Pinned tagline */}
           <div className="text-right select-none pr-2">
-            <h4 className="font-display text-base md:text-lg font-black text-gray-900 leading-none tracking-widest">BUILT FOR PRECISION.</h4>
+            <h4 className="font-display text-base md:text-lg font-black text-white leading-none tracking-widest">BUILT FOR PRECISION.</h4>
             <h4 className="font-display text-base md:text-lg font-black text-[#f5820c] leading-none tracking-widest mt-1">ENGINEERED TO PERFORM.</h4>
           </div>
           
@@ -547,7 +535,7 @@ function ProductDetailCockpit({ productId, onBack }) {
 
       {/* ─── BOTTOM ACTION BAR ─── */}
       <footer className="w-full max-w-7xl mx-auto px-6 md:px-12 mt-6 z-20 flex justify-center">
-        <div className="bg-white/80 border border-[rgba(245,130,12,0.3)] rounded-full p-2.5 flex flex-wrap justify-center gap-3.5 shadow-md max-w-full overflow-x-auto scrollbar-none backdrop-blur-sm">
+        <div className="bg-[rgba(20,12,4,0.7)] border border-[rgba(245,130,12,0.35)] rounded-full p-2.5 flex flex-wrap justify-center gap-3.5 shadow-lg max-w-full overflow-x-auto scrollbar-none">
           {[
             { id: '360', name: '360° VIEW', icon: <RotateCw className="w-4 h-4" />, action: () => handleSelectThumb('complete') },
             { id: 'exploded', name: 'EXPLODED VIEW', icon: <Layers className="w-4 h-4" />, action: () => setIsExploded(!isExploded) },
@@ -563,8 +551,8 @@ function ProductDetailCockpit({ productId, onBack }) {
                 onClick={btn.action}
                 className={`py-2.5 px-8 rounded-full border font-display text-xs font-bold tracking-widest uppercase flex items-center gap-2 transition-all cursor-pointer ${
                   isExplodedActive 
-                    ? 'bg-[#f5820c] text-[#ffffff] border-[#f5820c] shadow-[0_0_10px_rgba(245,130,12,0.35)]'
-                    : 'border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-white text-gray-800 hover:text-[#f5820c] shadow-sm'
+                    ? 'bg-[#f5820c] text-[#120a03] border-[#f5820c] shadow-[0_0_10px_rgba(245,130,12,0.35)]'
+                    : 'border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-transparent text-[#ffffff] hover:text-[#f5820c]'
                 }`}
               >
                 {btn.icon}
