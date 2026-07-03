@@ -198,7 +198,7 @@ export default function SifterScrollytelling() {
     <div 
       ref={containerRef} 
       className="relative w-full z-10" 
-      style={{ height: '300vh' }}
+      style={{ height: '400vh' }}
     >
       {/* Preloading Overlay Indicator */}
       {!isPreloaded && (
