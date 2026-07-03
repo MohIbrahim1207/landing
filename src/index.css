@@ -161,3 +161,9 @@ body {
     mix-blend-mode: screen;
   }
 }
+
+/* Hide default browser audio/volume controls on HTML5 video players */
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-mute-button {
+  display: none !important;
+}

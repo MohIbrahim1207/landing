@@ -16,35 +16,45 @@ const TIMELINE_STEPS = [
     num: 1,
     name: 'FEED INLET',
     desc: 'Material enters the sifter through the inlet.',
-    badgePos: { top: '15%', left: '50%' }
+    x: 50,
+    y: 20,
+    connectorEnd: { x: 35, y: 14 }
   },
   {
     id: 'chamber',
     num: 2,
     name: 'SCREENING CHAMBER',
     desc: 'Material is separated using high-speed centrifugal force.',
-    badgePos: { top: '35%', left: '51%' }
+    x: 50,
+    y: 42,
+    connectorEnd: { x: 32, y: 45 }
   },
   {
     id: 'outlet',
     num: 3,
     name: 'FINE MATERIAL DISCHARGE',
     desc: 'Fine particles pass through the screen and exit.',
-    badgePos: { top: '65%', left: '44%' }
+    x: 42,
+    y: 68,
+    connectorEnd: { x: 25, y: 78 }
   },
   {
     id: 'coarse',
     num: 4,
     name: 'COARSE DISCHARGE',
     desc: 'Oversize particles are discharged separately.',
-    badgePos: { top: '60%', left: '32%' }
+    x: 58,
+    y: 68,
+    connectorEnd: { x: 75, y: 78 }
   },
   {
     id: 'motor',
     num: 5,
     name: 'MOTOR DRIVE',
     desc: 'High-performance motor powers the rotor.',
-    badgePos: { top: '52%', left: '68%' }
+    x: 68,
+    y: 52,
+    connectorEnd: { x: 85, y: 48 }
   }
 ];
 
@@ -52,6 +62,7 @@ export default function ProductDetail({ productId, onBack }) {
   const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
 
   const [activeStep, setActiveStep] = useState(0); // 0 to 4
+  const [hoveredStep, setHoveredStep] = useState(null);
   const [isExploded, setIsExploded] = useState(false);
   const [isSectionCut, setIsSectionCut] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -296,26 +307,111 @@ export default function ProductDetail({ productId, onBack }) {
               </span>
             </div>
             
-            {/* Absolute positioned callout badges over center frame */}
-            <div className="absolute inset-0 pointer-events-none z-20">
-              {TIMELINE_STEPS.map((step, idx) => {
-                const isActive = activeStep === idx;
-                return (
-                  <button
-                    key={step.id}
-                    onClick={() => setActiveStep(idx)}
-                    style={{ top: step.badgePos.top, left: step.badgePos.left }}
-                    className={`absolute pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-black shadow-lg transition-all duration-300 cursor-pointer ${
-                      isActive 
-                        ? 'bg-[#f5820c] text-[#ffffff] scale-125 shadow-[0_0_15px_rgba(245,130,12,0.85)] border border-white' 
-                        : 'bg-white text-[#120a03] hover:scale-110'
-                    }`}
-                  >
-                    {step.num}
-                  </button>
-                );
-              })}
-            </div>
+            {/* Absolute positioned callout badges & connectors over center frame */}
+            {!isRunning && (
+              <div className="absolute inset-0 z-20 pointer-events-none">
+                
+                {/* SVG Connector Lines */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                  {TIMELINE_STEPS.map((step, idx) => {
+                    const isActive = activeStep === idx;
+                    const isHovered = hoveredStep === idx;
+                    const isHighlighted = isActive || isHovered;
+
+                    return (
+                      <g key={`line-${step.id}`} className="transition-all duration-300">
+                        <line
+                          x1={`${step.x}%`}
+                          y1={`${step.y}%`}
+                          x2={`${step.connectorEnd.x}%`}
+                          y2={`${step.connectorEnd.y}%`}
+                          stroke={isHighlighted ? '#f5820c' : 'rgba(245, 130, 12, 0.25)'}
+                          strokeWidth={isHighlighted ? '1.8' : '0.8'}
+                          strokeDasharray={isHighlighted ? 'none' : '3 3'}
+                          fill="none"
+                        />
+                        <circle
+                          cx={`${step.x}%`}
+                          cy={`${step.y}%`}
+                          r="3.5"
+                          fill="#f5820c"
+                          className={isHighlighted ? 'animate-ping' : ''}
+                        />
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* Hotspot Interactive badges, labels and tooltips */}
+                {TIMELINE_STEPS.map((step, idx) => {
+                  const isActive = activeStep === idx;
+                  const isHovered = hoveredStep === idx;
+                  const showOverlay = isActive || isHovered;
+
+                  return (
+                    <div key={step.id}>
+                      {/* Numbered Badge Button */}
+                      <button
+                        onClick={() => setActiveStep(idx)}
+                        onMouseEnter={() => setHoveredStep(idx)}
+                        onMouseLeave={() => setHoveredStep(null)}
+                        style={{
+                          top: `${step.y}%`,
+                          left: `${step.x}%`,
+                          transform: 'translate(-50%, -50%)',
+                        }}
+                        className={`absolute pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-black shadow-lg transition-all duration-300 cursor-pointer z-30 ${
+                          isActive 
+                            ? 'bg-[#f5820c] text-[#ffffff] scale-110 shadow-[0_0_15px_rgba(245,130,12,0.85)] border border-white' 
+                            : 'bg-white text-[#120a03] hover:scale-105 border border-[rgba(245,130,12,0.4)]'
+                        }`}
+                      >
+                        {step.num}
+                      </button>
+
+                      {/* Floating Text Label */}
+                      <div
+                        onClick={() => setActiveStep(idx)}
+                        onMouseEnter={() => setHoveredStep(idx)}
+                        onMouseLeave={() => setHoveredStep(null)}
+                        style={{
+                          top: `${step.connectorEnd.y}%`,
+                          left: `${step.connectorEnd.x}%`,
+                          transform: 'translate(-50%, -50%)',
+                        }}
+                        className={`absolute pointer-events-auto px-2.5 py-1 rounded border font-display text-[9px] tracking-[0.15em] font-black uppercase cursor-pointer transition-all duration-300 z-20 ${
+                          isActive
+                            ? 'bg-[#f5820c] text-[#120a03] border-[#f5820c] shadow-[0_0_10px_rgba(245,130,12,0.4)]'
+                            : 'bg-[#120a03]/80 text-[#f5b866] border-[rgba(245,130,12,0.3)] hover:border-[#f5820c] hover:text-white'
+                        }`}
+                      >
+                        {step.name}
+                      </div>
+
+                      {/* Tooltip Description */}
+                      <div
+                        style={{
+                          top: `${step.connectorEnd.y - 7}%`,
+                          left: `${step.connectorEnd.x}%`,
+                          transform: 'translateX(-50%)',
+                          opacity: showOverlay ? 1 : 0,
+                          visibility: showOverlay ? 'visible' : 'hidden',
+                        }}
+                        className="absolute max-w-[200px] bg-[rgba(20,12,4,0.92)] border border-[#f5820c] rounded-lg p-2.5 shadow-2xl transition-all duration-300 z-40 text-left pointer-events-none"
+                      >
+                        <span className="font-display text-[10px] font-black text-[#f5820c] uppercase tracking-wider block mb-1">
+                          {step.name}
+                        </span>
+                        <p className="font-sans text-[10px] text-white leading-normal">
+                          {step.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+              </div>
+            )}
 
             <video
               ref={videoRef}
