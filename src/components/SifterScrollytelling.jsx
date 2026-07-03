@@ -223,7 +223,7 @@ export default function SifterScrollytelling() {
         />
 
         {/* Absolute scrollytelling text overlays */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center px-6 pointer-events-none select-none">
+        <div className="absolute inset-0 z-20 flex items-center justify-center px-6 pt-24 pointer-events-none select-none">
           
           {/* Section 1: 0% - 15% (Centered Hero Copy) */}
           <div 
