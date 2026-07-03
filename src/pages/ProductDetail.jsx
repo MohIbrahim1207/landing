@@ -202,7 +202,7 @@ function ProductDetailCockpit({ productId, onBack }) {
       <div className="absolute inset-0 bg-vignette-ambient z-10" />
 
       {/* ─── HEADER ROW (~80px) ─── */}
-      <header className="fixed top-0 left-0 w-full z-40 pt-4 px-6 md:px-12 flex items-center justify-between gap-6 border-b border-[rgba(245,130,12,0.15)] pb-4 bg-[#120a03]/85 backdrop-blur-md">
+      <header className="sticky top-0 left-0 w-full z-40 pt-4 px-6 md:px-12 flex items-center justify-between gap-6 border-b border-[rgba(245,130,12,0.15)] pb-4 bg-[#120a03]/95 backdrop-blur-md">
         
         {/* Left Logo / Wordmark */}
         <div className="flex items-center gap-3.5 cursor-pointer" onClick={onBack}>
@@ -254,7 +254,7 @@ function ProductDetailCockpit({ productId, onBack }) {
       </header>
 
       {/* ─── BODY (12-COLUMN DASHBOARD) ─── */}
-      <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-24 md:pt-28 z-20 relative">
+      <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-6 z-20 relative">
         
         {/* ─── LEFT: PROCESS FLOW (3 COLS) ─── */}
         <div className="lg:col-span-3 flex flex-col justify-between glass-panel-gold rounded-2xl p-5 relative overflow-hidden select-none">
