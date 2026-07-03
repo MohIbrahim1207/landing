@@ -194,7 +194,7 @@ function ProductDetailCockpit({ productId, onBack }) {
   };
 
   return (
-    <div className="bg-[#120a03] min-h-screen text-[#ffffff] flex flex-col justify-between font-sans overflow-x-hidden relative selection:bg-[#f5820c] selection:text-[#120a03] pb-6">
+    <div className="bg-[#120a03] min-h-screen text-[#ffffff] flex flex-col justify-between font-sans overflow-x-hidden relative selection:bg-[#f5820c] selection:text-[#120a03] pb-6 z-20" style={{ marginTop: '-100vh', paddingTop: '100vh' }}>
       {/* Volumetric background grid overlays for dark theme */}
       <div className="absolute inset-0 bg-blueprint-grid-gold opacity-15 pointer-events-none z-0" />
       <div className="absolute inset-0 bg-blueprint-subgrid-gold opacity-10 pointer-events-none z-0" />
