@@ -201,58 +201,6 @@ function ProductDetailCockpit({ productId, onBack }) {
       <div className="light-beam-overlay z-0" />
       <div className="absolute inset-0 bg-vignette-ambient z-10" />
 
-      {/* ─── HEADER ROW (~80px) ─── */}
-      <header className="sticky top-0 left-0 w-full z-40 pt-4 px-6 md:px-12 flex items-center justify-between gap-6 border-b border-[rgba(245,130,12,0.15)] pb-4 bg-[#120a03]/95 backdrop-blur-md">
-        
-        {/* Left Logo / Wordmark */}
-        <div className="flex items-center gap-3.5 cursor-pointer" onClick={onBack}>
-          <div className="w-12 h-12 bg-[#f5820c] rounded-lg flex items-center justify-center font-display font-black text-[#120a03] text-xl shadow-[0_0_15px_rgba(245,130,12,0.45)]">
-            FF
-          </div>
-          <div className="text-left leading-tight">
-            <span className="font-display font-black text-base tracking-widest text-[#ffffff] block uppercase">
-              FLOW FORCE
-            </span>
-            <span className="font-display text-[9px] tracking-[0.15em] text-[#f5b866] uppercase font-bold block mt-0.5">
-              ENGINEERING EXCELLENCE
-            </span>
-          </div>
-        </div>
-
-        {/* Center Title / Subtitle */}
-        <div className="text-center hidden md:block">
-          <h1 className="font-display font-black text-4xl lg:text-5xl tracking-widest text-[#ffffff] uppercase leading-none">
-            CENTRIFUGAL SIFTER
-          </h1>
-          <div className="text-xs tracking-[0.2em] font-display uppercase font-bold mt-2">
-            <span className="text-[#ffffff]">PRECISION</span>
-            <span className="text-[#f5820c]"> SEPARATION. MAXIMUM PERFORMANCE.</span>
-          </div>
-        </div>
-
-        {/* Right Icon Buttons */}
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setIsMuted(!isMuted)}
-            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
-          <button 
-            onClick={handleToggleFullscreen}
-            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
-          <button 
-            onClick={onBack}
-            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        </div>
-      </header>
-
       {/* ─── BODY (12-COLUMN DASHBOARD) ─── */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-6 z-20 relative">
         
