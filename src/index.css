@@ -20,6 +20,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 body {
@@ -29,28 +31,30 @@ body {
   font-family: "Inter", sans-serif;
   font-size: 16px;
   line-height: 1.7;
+  overflow-y: visible;
   overflow-x: hidden;
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars - Sleek Premium Amber Glow */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #120a03;
+  background: #0f0802;
+  border-left: 1px solid rgba(245, 130, 12, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(245, 130, 12, 0.15);
-  border: 1px solid rgba(245, 130, 12, 0.35);
-  border-radius: 3px;
+  background: linear-gradient(180deg, #d97706 0%, #f5820c 100%);
+  border: 2px solid #0f0802;
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(245, 130, 12, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(245, 130, 12, 0.35);
-  border-color: #f5820c;
+  background: #f5820c;
 }
 
 /* Gold/Warm Blueprint Overlay */
@@ -166,4 +170,29 @@ body {
 video::-webkit-media-controls-volume-slider,
 video::-webkit-media-controls-mute-button {
   display: none !important;
+}
+
+/* Premium scroll reveal transitions */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(40px) scale(0.98);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.delay-100 {
+  transition-delay: 100ms;
+}
+
+.delay-300 {
+  transition-delay: 300ms;
+}
+
+.delay-500 {
+  transition-delay: 500ms;
 }

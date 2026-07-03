@@ -67,8 +67,10 @@ export default function ProductDetail({ productId, onBack }) {
   const [isSectionCut, setIsSectionCut] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const videoRef = useRef(null);
+  const cockpitRef = useRef(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -101,6 +103,24 @@ export default function ProductDetail({ productId, onBack }) {
         observer.unobserve(video);
         video.removeEventListener('ended', handleEnded);
       }
+    };
+  }, []);
+
+  // Premium scroll reveal intersection observer
+  useEffect(() => {
+    const element = cockpitRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.12 }
+    );
+    observer.observe(element);
+    return () => {
+      if (element) observer.unobserve(element);
     };
   }, []);
 
@@ -211,10 +231,10 @@ export default function ProductDetail({ productId, onBack }) {
       </header>
 
       {/* ─── BODY (12-COLUMN DASHBOARD) ─── */}
-      <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-24 md:pt-28 z-20 relative">
+      <main ref={cockpitRef} className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-24 md:pt-28 z-20 relative">
         
         {/* ─── LEFT: PROCESS FLOW (3 COLS) ─── */}
-        <div className="lg:col-span-3 flex flex-col justify-between glass-panel-gold rounded-2xl p-5 relative overflow-hidden select-none">
+        <div className={`lg:col-span-3 flex flex-col justify-between glass-panel-gold rounded-2xl p-5 relative overflow-hidden select-none scroll-reveal delay-100 ${isVisible ? 'active' : ''}`}>
           <div className="absolute top-0 right-0 p-2 font-mono text-[8px] text-[#f5b866]/30">FLOW_SYS</div>
           
           <div>
@@ -290,7 +310,7 @@ export default function ProductDetail({ productId, onBack }) {
         </div>
 
         {/* ─── CENTER: MEDIA STAGE (6 COLS) ─── */}
-        <div className="lg:col-span-6 flex flex-col gap-4 relative justify-center">
+        <div className={`lg:col-span-6 flex flex-col gap-4 relative justify-center scroll-reveal delay-300 ${isVisible ? 'active' : ''}`}>
           
           {/* Glowing Circular turntable platform */}
           <div className="absolute w-[440px] h-[440px] rounded-full border border-[rgba(245,130,12,0.15)] bottom-22 left-1/2 -translate-x-1/2 flex items-center justify-center z-0 animate-turntable-glow pointer-events-none">
@@ -430,7 +450,7 @@ export default function ProductDetail({ productId, onBack }) {
         </div>
 
         {/* ─── RIGHT: HIGHLIGHTS & OVERVIEW (3 COLS) ─── */}
-        <div className="lg:col-span-3 flex flex-col justify-between gap-4 text-left">
+        <div className={`lg:col-span-3 flex flex-col justify-between gap-4 text-left scroll-reveal delay-500 ${isVisible ? 'active' : ''}`}>
           
           {/* Card 1: Key Highlights */}
           <div className="glass-panel-gold rounded-2xl p-5 relative">
