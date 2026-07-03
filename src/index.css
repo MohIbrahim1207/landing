@@ -1,44 +1,21 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @theme {
-  --color-background: #0d1516;
-  --color-surface: #0d1516;
-  --color-surface-dim: #0d1516;
-  --color-surface-bright: #333a3c;
-  --color-surface-container-lowest: #080f11;
-  --color-surface-container-low: #161d1f;
-  --color-surface-container: #1a2123;
-  --color-surface-container-high: #242b2d;
-  --color-surface-container-highest: #2f3638;
-  --color-on-surface: #dce4e6;
-  --color-on-surface-variant: #bac9cd;
+  --color-background: #120a03;
+  --color-surface: rgba(20, 12, 4, 0.55);
+  --color-outline: rgba(245, 130, 12, 0.35);
   
-  --color-primary: #baf2ff;
-  --color-on-primary: #00363f;
-  --color-primary-container: #00e0ff;
-  --color-on-primary-container: #005f6d;
-  --color-primary-fixed-dim: #00daf8;
+  --color-primary: #f5820c; /* amber-500 */
+  --color-primary-container: #854005;
+  --color-on-primary-container: #f5b866; /* amber-300 */
   
-  --color-secondary: #c4c6cc;
-  --color-on-secondary: #2d3135;
-  --color-secondary-container: #46494e;
-  --color-on-secondary-container: #b6b8be;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Barlow Condensed", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
   
-  --color-tertiary: #ffe6b6;
-  --color-on-tertiary: #3f2e00;
-  --color-tertiary-container: #fec42e;
-  --color-on-tertiary-container: #6f5200;
-  
-  --color-outline: #859397;
-  --color-outline-variant: #3b494c;
-  
-  --font-sans: "Inter", "Source Sans 3", "IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  --font-mono: "Geist Mono", monospace;
-  
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
+  --radius-panel: 16px;
+  --radius-pill: 999px;
 }
 
 html {
@@ -46,78 +23,141 @@ html {
 }
 
 body {
-  background-color: #f8f9fa;
-  color: #1a2123;
-  font-family: "Inter", "Source Sans 3", "IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  background-color: #120a03;
+  background-image: radial-gradient(ellipse at center, #3a1d05 0%, #1a0e03 60%, #000000 100%);
+  color: #ffffff;
+  font-family: "Inter", sans-serif;
   font-size: 16px;
   line-height: 1.7;
-  font-weight: 400;
-  text-align: left;
   overflow-x: hidden;
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d1516;
+  background: #120a03;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1a2123;
-  border: 1px solid #3b494c;
-  border-radius: 4px;
+  background: rgba(245, 130, 12, 0.15);
+  border: 1px solid rgba(245, 130, 12, 0.35);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #242b2d;
+  background: rgba(245, 130, 12, 0.35);
+  border-color: #f5820c;
 }
 
-/* Premium Industrial Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-panel-hover {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(0, 224, 255, 0.2);
-  box-shadow: 0 10px 30px -10px rgba(0, 224, 255, 0.15);
-}
-
-.text-glow {
-  text-shadow: 0 0 20px rgba(186, 242, 255, 0.25);
-}
-
-.text-glow-accent {
-  text-shadow: 0 0 20px rgba(0, 224, 255, 0.4);
-}
-
-.border-glow:hover {
-  border-color: rgba(0, 224, 255, 0.4);
-  box-shadow: 0 0 15px rgba(0, 224, 255, 0.1);
-}
-
-.mask-radial {
-  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-}
-
-.metallic-bg {
-  background: linear-gradient(135deg, #161d1f 0%, #0d1516 100%);
-}
-
-/* Custom animations for background grid pattern */
-.bg-grid-pattern {
-  background-size: 40px 40px;
+/* Gold/Warm Blueprint Overlay */
+.bg-blueprint-grid-gold {
+  background-size: 60px 60px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    linear-gradient(to right, rgba(245, 130, 12, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 130, 12, 0.02) 1px, transparent 1px);
+}
+
+.bg-blueprint-subgrid-gold {
+  background-size: 12px 12px;
+  background-image: 
+    linear-gradient(to right, rgba(245, 130, 12, 0.006) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 130, 12, 0.006) 1px, transparent 1px);
+}
+
+/* Premium Warm Glassmorphism Panels */
+.glass-panel-gold {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(20, 12, 4, 0.55);
+  border: 1px solid rgba(245, 130, 12, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(245, 130, 12, 0.08);
+}
+
+.glass-panel-gold-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-gold-hover:hover {
+  background: rgba(20, 12, 4, 0.7);
+  border-color: #f5820c;
+  box-shadow: 
+    0 0 50px rgba(245, 130, 12, 0.2),
+    inset 0 0 15px rgba(245, 130, 12, 0.05);
+}
+
+/* Vignette Ambient Shadow */
+.bg-vignette-ambient {
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* Turntable circle rotate glow keyframes */
+@keyframes pulseTurntableGlow {
+  0% { box-shadow: 0 0 25px rgba(245, 130, 12, 0.15); border-color: rgba(245, 130, 12, 0.25); }
+  50% { box-shadow: 0 0 45px rgba(245, 130, 12, 0.35); border-color: rgba(245, 130, 12, 0.55); }
+  100% { box-shadow: 0 0 25px rgba(245, 130, 12, 0.15); border-color: rgba(245, 130, 12, 0.25); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-turntable-glow {
+    animation: pulseTurntableGlow 4s ease-in-out infinite;
+  }
+}
+
+/* 3D Rotating Cube animation styles */
+@keyframes rotateCube {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-cube {
+    animation: rotateCube 12s linear infinite;
+    transform-style: preserve-3d;
+  }
+}
+
+/* Volumetric Radar Sweep Scanline in warm amber */
+@keyframes sweepGold {
+  0% { transform: translateY(-100%); opacity: 0.1; }
+  50% { opacity: 0.3; }
+  100% { transform: translateY(100%); opacity: 0.1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .radar-scanline-gold {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, rgba(245, 130, 12, 0.05), transparent);
+    animation: sweepGold 9s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* Volumetric light beam simulation */
+@keyframes slowShift {
+  0% { transform: translate(-30%, -30%) rotate(0deg); }
+  50% { transform: translate(-10%, -10%) rotate(180deg); }
+  100% { transform: translate(-30%, -30%) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .light-beam-overlay {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(245, 130, 12, 0.04) 0%, transparent 50%);
+    animation: slowShift 35s linear infinite;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
 }

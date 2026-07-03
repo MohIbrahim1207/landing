@@ -328,19 +328,7 @@ function ProductCard({ prod, index }) {
         </div>
       </div>
 
-      {/* CTA footer */}
-      <div
-        className="relative px-6 pb-6 z-1"
-        style={{ transform: 'translateZ(10px)', zIndex: 1 }}
-      >
-        <a
-          href="#rfq"
-          className="w-full inline-flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-white/8 hover:border-[#00e0ff]/30 hover:bg-[#00e0ff]/5 text-on-surface hover:text-[#00e0ff] transition-all duration-300 group/cta text-sm font-bold"
-        >
-          <span>Request Technical Datasheet</span>
-          <ArrowUpRight className="w-4 h-4 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform duration-300 shrink-0" />
-        </a>
-      </div>
+
     </div>
   );
 }
@@ -442,13 +430,7 @@ export default function ProductShowcase() {
                 Drag to explore.
               </p>
             </div>
-            <a
-              href="#rfq"
-              className="inline-flex items-center gap-2 text-sm font-mono tracking-wider text-[#00e0ff] hover:text-white transition-colors uppercase h-fit shrink-0"
-            >
-              Request Custom Engineering
-              <ArrowRight className="w-4 h-4" />
-            </a>
+
           </div>
         </div>
 
@@ -477,12 +459,7 @@ export default function ProductShowcase() {
                 <p className="font-sans text-xs text-on-surface-variant leading-relaxed">
                   Our engineers will design the right system for your process.
                 </p>
-                <a
-                  href="#rfq"
-                  className="inline-flex items-center gap-1.5 text-xs font-mono text-[#00e0ff] tracking-wider hover:underline"
-                >
-                  Get Engineering Quote
-                </a>
+
               </div>
             </div>
           </div>

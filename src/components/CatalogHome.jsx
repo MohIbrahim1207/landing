@@ -116,18 +116,8 @@ export default function CatalogHome({ onViewProduct }) {
               ref={containerRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              onClick={() => setIsLightboxOpen(true)}
               style={tiltStyle}
-              className="relative bg-radial from-[#1e293b] to-[#0f172a] h-96 md:h-[550px] w-full flex items-center justify-center p-8 border-b border-white/10 select-none cursor-zoom-in group overflow-hidden"
-              role="button"
-              tabIndex={0}
-              aria-label={`View full resolution image of ${singleProduct.name}`}
-              onKeyDown={(e) => {
-                if (e.key === ' ' || e.key === 'Enter') {
-                  e.preventDefault();
-                  setIsLightboxOpen(true);
-                }
-              }}
+              className="relative bg-radial from-[#1e293b] to-[#0f172a] h-96 md:h-[550px] w-full flex items-center justify-center p-8 border-b border-white/10 select-none group overflow-hidden"
             >
               {/* Premium soft overlay lighting effect */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_rgba(0,0,0,0.4)_100%)] pointer-events-none" />
@@ -140,12 +130,6 @@ export default function CatalogHome({ onViewProduct }) {
                 style={{ imageRendering: 'high-quality' }}
                 loading="lazy"
               />
-
-              {/* Hover Indicator for zooming */}
-              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xs text-[#baf2ff] border border-[#baf2ff]/30 text-sm font-mono py-1.5 px-3 rounded flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span>CLICK TO ZOOM</span>
-              </div>
             </div>
 
             {/* Product Info Block */}

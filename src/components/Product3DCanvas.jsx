@@ -1555,14 +1555,6 @@ export default function Product3DCanvas({ productId, accentColor }) {
             </p>
             
             <div className="space-y-3 mt-8">
-              <button 
-                onClick={() => window.location.hash = 'rfq'}
-                className="w-full py-3 px-4 rounded-xl bg-[#00e0ff] hover:bg-[#00daf8] text-[#0d1516] font-bold text-xs transition-all duration-300 shadow-[0_0_15px_rgba(0,224,255,0.2)] flex items-center justify-between group cursor-pointer"
-              >
-                <span>Request Technical Quote</span>
-                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-              </button>
-              
               <a 
                 href="https://flow-force.com/brochure.pdf" 
                 target="_blank"
@@ -1572,14 +1564,6 @@ export default function Product3DCanvas({ productId, accentColor }) {
                 <span>Download PDF Brochure</span>
                 <span>↓</span>
               </a>
-              
-              <button 
-                onClick={() => window.location.hash = 'rfq'}
-                className="w-full py-3 px-4 rounded-xl border border-white/10 bg-white/2 hover:border-white/25 text-on-surface-variant hover:text-white font-bold text-xs transition-all duration-300 flex items-center justify-between group cursor-pointer"
-              >
-                <span>Talk to Systems Engineer</span>
-                <span>☎</span>
-              </button>
             </div>
           </div>
           

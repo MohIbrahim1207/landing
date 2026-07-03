@@ -1,561 +1,421 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PRODUCTS } from '../data/products';
-import { ArrowLeft, FileText, Send, CheckCircle, Play, Eye } from 'lucide-react';
+import CountUp from '../components/CountUp';
+import { 
+  ArrowLeft, FileText, Play, Eye, 
+  Settings, Maximize2, Volume2, Info,
+  Compass, ShieldCheck, Zap, AlertTriangle,
+  RotateCw, RefreshCw, Layers, Shield,
+  Award, PlayCircle, RotateCcw, Activity,
+  Sliders, Database, Download, ChevronDown
+} from 'lucide-react';
 
-const Product3DViewer = React.lazy(() => import('../components/Product3DViewer'));
-
-export default function ProductDetail({ productId, onBack, onNavigateProduct }) {
-  const product = PRODUCTS.find((p) => p.id === productId);
-
-  if (!product) {
-    return (
-      <div className="bg-[#f8f9fa] min-h-screen text-[#1a2123] flex items-center justify-center p-6">
-        <div className="text-center">
-          <p className="text-lg font-bold">Product not found.</p>
-          <button onClick={onBack} className="mt-4 px-4 py-2 bg-gray-200 rounded">
-            Back to Catalog
-          </button>
-        </div>
-      </div>
-    );
+const TIMELINE_STEPS = [
+  {
+    id: 'inlet',
+    num: 1,
+    name: 'FEED INLET',
+    desc: 'Material enters the sifter through the inlet.',
+    badgePos: { top: '15%', left: '50%' }
+  },
+  {
+    id: 'chamber',
+    num: 2,
+    name: 'SCREENING CHAMBER',
+    desc: 'Material is separated using high-speed centrifugal force.',
+    badgePos: { top: '35%', left: '51%' }
+  },
+  {
+    id: 'outlet',
+    num: 3,
+    name: 'FINE MATERIAL DISCHARGE',
+    desc: 'Fine particles pass through the screen and exit.',
+    badgePos: { top: '65%', left: '44%' }
+  },
+  {
+    id: 'coarse',
+    num: 4,
+    name: 'COARSE DISCHARGE',
+    desc: 'Oversize particles are discharged separately.',
+    badgePos: { top: '60%', left: '32%' }
+  },
+  {
+    id: 'motor',
+    num: 5,
+    name: 'MOTOR DRIVE',
+    desc: 'High-performance motor powers the rotor.',
+    badgePos: { top: '52%', left: '68%' }
   }
+];
 
-  // Media Tab state: 'image' or '3d'
-  const [mediaTab, setMediaTab] = useState('image');
+export default function ProductDetail({ productId, onBack }) {
+  const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
 
-  // Configurable options state
-  const [selectedOptions, setSelectedOptions] = useState({});
-  // Form submission state
-  const [formData, setFormData] = useState({
-    name: '',
-    company: '',
-    email: '',
-    phone: '',
-    additionalInfo: ''
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [activeStep, setActiveStep] = useState(0); // 0 to 4
+  const [isExploded, setIsExploded] = useState(false);
+  const [isSectionCut, setIsSectionCut] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
-  // Initialize selected options
+  const videoRef = useRef(null);
+
   useEffect(() => {
-    const initial = {};
-    product.options.forEach((opt) => {
-      initial[opt.name] = true; // default select all
-    });
-    setSelectedOptions(initial);
-    setSubmitted(false);
-    setMediaTab('image'); // reset media tab to default image on product change
-  }, [productId]);
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch((err) => {
+            console.log("Telemetry video play deferred:", err);
+          });
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(video);
+    return () => {
+      if (video) observer.unobserve(video);
+    };
+  }, []);
 
-  // Section refs for sticky scrolling
-  const sectionRefs = {
-    overview: useRef(null),
-    features: useRef(null),
-    specifications: useRef(null),
-    applications: useRef(null),
-    video: useRef(null),
-    brochure: useRef(null)
-  };
+  // Auto-cycle timeline progress when running
+  const autoPlayInterval = useRef(null);
+  useEffect(() => {
+    if (isRunning) {
+      autoPlayInterval.current = setInterval(() => {
+        setActiveStep((prev) => (prev + 1) % TIMELINE_STEPS.length);
+      }, 4000);
+    } else {
+      if (autoPlayInterval.current) clearInterval(autoPlayInterval.current);
+    }
+    return () => {
+      if (autoPlayInterval.current) clearInterval(autoPlayInterval.current);
+    };
+  }, [isRunning]);
 
-  const handleScrollToSection = (sectionKey) => {
-    const ref = sectionRefs[sectionKey];
-    if (ref && ref.current) {
-      const headerOffset = 130;
-      const elementPosition = ref.current.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+  const handleSelectThumb = (thumbId) => {
+    if (thumbId === 'complete') {
+      setActiveStep(0);
+      setIsExploded(false);
+      setIsSectionCut(false);
+    } else {
+      const idx = TIMELINE_STEPS.findIndex(h => h.id === thumbId);
+      if (idx !== -1) setActiveStep(idx);
     }
   };
 
-  const handleOptionToggle = (name) => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [name]: !prev[name]
-    }));
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = '/COMPANY PROFILE FLOW FORCE INDONESIA 2026.pdf';
-    link.download = 'COMPANY PROFILE FLOW FORCE INDONESIA 2026.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    alert(`Downloading complete CAD specifications & Brochure for: ${product.name}`);
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: '',
-        company: '',
-        email: '',
-        phone: '',
-        additionalInfo: ''
-      });
-    }, 4000);
+  const handleTogglePlay = () => {
+    setIsRunning(!isRunning);
   };
 
-  // Filter out current product for related products
-  const relatedProducts = PRODUCTS.filter((p) => p.id !== productId);
+  const handleRestart = () => {
+    setActiveStep(0);
+    setIsRunning(false);
+    setIsExploded(false);
+    setIsSectionCut(false);
+  };
 
-  // Build current configuration summary string
-  const getSelectedOptionsString = () => {
-    return Object.entries(selectedOptions)
-      .filter(([_, enabled]) => enabled)
-      .map(([name]) => name)
-      .join(', ');
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen text-[#1a2123]">
-      {/* Back button and quick header */}
-      <div className="bg-white border-b border-gray-200 py-4 px-6 md:px-12 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <button
+    <div className="bg-[#120a03] min-h-screen text-[#ffffff] flex flex-col justify-between font-sans overflow-x-hidden relative selection:bg-[#f5820c] selection:text-[#120a03] pb-6">
+      {/* Volumetric background gradients & overlays */}
+      <div className="absolute inset-0 bg-blueprint-grid-gold opacity-15 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-blueprint-subgrid-gold opacity-10 pointer-events-none z-0" />
+      <div className="light-beam-overlay z-0" />
+      <div className="absolute inset-0 bg-vignette-ambient z-10" />
+
+      {/* ─── HEADER ROW (~80px) ─── */}
+      <header className="relative w-full z-20 pt-6 px-6 md:px-12 flex items-center justify-between gap-6 border-b border-[rgba(245,130,12,0.1)] pb-4 bg-[#120a03]/50 backdrop-blur-md">
+        
+        {/* Left Logo / Wordmark */}
+        <div className="flex items-center gap-3.5 cursor-pointer" onClick={onBack}>
+          <div className="w-12 h-12 bg-[#f5820c] rounded-lg flex items-center justify-center font-display font-black text-[#120a03] text-xl shadow-[0_0_15px_rgba(245,130,12,0.5)]">
+            FF
+          </div>
+          <div className="text-left leading-tight">
+            <span className="font-display font-black text-base tracking-widest text-[#ffffff] block uppercase">
+              FLOW FORCE
+            </span>
+            <span className="font-display text-[9px] tracking-[0.15em] text-[#f5b866] uppercase font-bold block mt-0.5">
+              ENGINEERING EXCELLENCE
+            </span>
+          </div>
+        </div>
+
+        {/* Center Title / Subtitle */}
+        <div className="text-center hidden md:block">
+          <h1 className="font-display font-black text-4xl lg:text-5xl tracking-widest text-[#ffffff] uppercase leading-none">
+            CENTRIFUGAL SIFTER
+          </h1>
+          <div className="text-xs tracking-[0.2em] font-display uppercase font-bold mt-2">
+            <span className="text-[#ffffff]">PRECISION</span>
+            <span className="text-[#f5820c]"> SEPARATION. MAXIMUM PERFORMANCE.</span>
+          </div>
+        </div>
+
+        {/* Right Icon Buttons */}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsMuted(!isMuted)}
+            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
+          >
+            <Volume2 className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={handleToggleFullscreen}
+            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+          <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-base text-[#005f6d] font-semibold hover:text-[#00363f] transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Catalog</span>
           </button>
-          <span className="font-mono text-sm font-bold text-gray-500 hidden sm:inline uppercase">
-            FLOW FORCE INDUSTRIAL CATALOG
-          </span>
         </div>
-      </div>
+      </header>
 
-      {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
-        {/* 1. Product Hero section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-          {/* Left: Product Image / 3D Switcher Column */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
-            {/* Switcher segmented tabs */}
-            <div className="bg-white border border-gray-200 rounded-lg p-1 flex shadow-2xs">
-              <button
-                onClick={() => setMediaTab('image')}
-                className={`flex-grow py-2.5 text-center text-sm font-bold uppercase tracking-wider rounded transition-all cursor-pointer ${
-                  mediaTab === 'image'
-                    ? 'bg-[#005f6d] text-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                📷 Product Image
-              </button>
-              <button
-                onClick={() => setMediaTab('3d')}
-                className={`flex-grow py-2.5 text-center text-sm font-bold uppercase tracking-wider rounded transition-all cursor-pointer ${
-                  mediaTab === '3d'
-                    ? 'bg-[#005f6d] text-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                🧊 Interactive 3D
-              </button>
-            </div>
-
-            {/* Display View */}
-            <div className="relative">
-              {mediaTab === 'image' ? (
-                <div className="bg-white border border-gray-200 rounded-lg p-8 flex items-center justify-center min-h-[400px] shadow-xs select-none">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="max-h-[350px] max-w-full object-contain scale-[2.0]"
-                  />
-                </div>
-              ) : (
-                <Suspense
-                  fallback={
-                    <div className="bg-white border border-gray-200 rounded-lg flex items-center justify-center min-h-[400px] shadow-xs text-gray-500 font-mono text-sm uppercase tracking-widest">
-                      Loading 3D Canvas...
-                    </div>
-                  }
-                >
-                  <Product3DViewer productId={product.id} />
-                </Suspense>
-              )}
-            </div>
-          </div>
-
-          {/* Right: Info and Primary CTA Actions */}
-          <div className="lg:col-span-7 flex flex-col justify-between text-left">
-            <div className="space-y-6">
-              <span className="font-mono text-sm text-[#005f6d] tracking-widest uppercase font-bold">
-                {product.category}
-              </span>
-              <h1 className="font-sans text-[44px] md:text-[48px] font-bold text-gray-900 tracking-tight uppercase leading-tight">
-                {product.name}
-              </h1>
-              <p className="font-sans text-[16px] md:text-[18px] text-gray-600 leading-[1.7] font-normal">
-                {product.overview}
-              </p>
-            </div>
-
-            {/* Quick Actions Panel */}
-            <div className="flex flex-wrap gap-4 pt-6 border-t border-gray-200 mt-8">
-              <button
-                onClick={() => {
-                  const formElement = document.getElementById('quote-form-section');
-                  if (formElement) {
-                    formElement.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className="py-3 px-8 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded shadow-sm hover:shadow transition-all text-lg uppercase tracking-wider cursor-pointer"
-              >
-                Request Quote
-              </button>
-              <button
-                onClick={handleDownload}
-                className="py-3 px-8 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded transition-all text-lg uppercase tracking-wider flex items-center gap-2 cursor-pointer"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Download Brochure</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Sticky Tab Navigation (Locks to top as you scroll) */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-xs sticky top-[58px] z-20 mb-12 overflow-x-auto scrollbar-none">
-          <div className="flex min-w-[640px]">
-            {Object.keys(sectionRefs).map((key) => (
-              <button
-                key={key}
-                onClick={() => handleScrollToSection(key)}
-                className="flex-1 py-4 text-center font-sans text-sm font-bold tracking-wider text-gray-600 hover:text-[#005f6d] hover:bg-gray-50 border-r border-gray-100 last:border-0 transition-colors uppercase cursor-pointer"
-              >
-                {key}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Section Contents with generous whitespace */}
-        <div className="space-y-20 text-left">
+      {/* ─── BODY (12-COLUMN DASHBOARD) ─── */}
+      <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-6 z-20 relative">
+        
+        {/* ─── LEFT: PROCESS FLOW (3 COLS) ─── */}
+        <div className="lg:col-span-3 flex flex-col justify-between glass-panel-gold rounded-2xl p-5 relative overflow-hidden select-none">
+          <div className="absolute top-0 right-0 p-2 font-mono text-[8px] text-[#f5b866]/30">FLOW_SYS</div>
           
-          {/* 2. Overview Section */}
-          <div ref={sectionRefs.overview} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Overview
-            </h2>
-            <p className="font-sans text-[16px] md:text-[18px] text-gray-600 leading-[1.7] font-normal">
-              {product.overview} Flow Force heavy-duty industrial systems are precision engineered to provide reliable containment, continuous throughput, and seamless mechanical interface matching. Configured to align directly with plant layout parameters.
-            </p>
-          </div>
-
-          {/* 3. Features Section */}
-          <div ref={sectionRefs.features} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Features & Benefits
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {product.features.map((feature, idx) => (
-                <div key={idx} className="flex gap-3 p-4 bg-gray-50 rounded border border-gray-100 items-start">
-                  <span className="text-[#005f6d] font-bold text-lg leading-none">✓</span>
-                  <p className="font-sans text-sm text-gray-700 leading-relaxed font-semibold">{feature}</p>
-                </div>
-              ))}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-display text-base md:text-lg tracking-wider text-[#ffffff] font-extrabold uppercase">
+                PROCESS FLOW
+              </span>
             </div>
-          </div>
-
-          {/* 4. Specifications Section */}
-          <div ref={sectionRefs.specifications} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Specifications
-            </h2>
-            <div className="border border-gray-200 rounded overflow-hidden">
-              <table className="w-full text-left border-collapse text-[15px] font-mono">
-                <thead>
-                  <tr className="bg-gray-100 border-b border-gray-200">
-                    <th className="py-4 px-5 text-xs font-bold uppercase tracking-wider text-gray-600">Technical Parameter</th>
-                    <th className="py-4 px-5 text-xs font-bold uppercase tracking-wider text-gray-600">Specification Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.specs.map((spec, idx) => (
-                    <tr key={idx} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50">
-                      <td className="py-4 px-5 text-gray-500 uppercase font-semibold">{spec.label}</td>
-                      <td className="py-4 px-5 font-black text-gray-900 uppercase">{spec.value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* 5. Applications Section */}
-          <div ref={sectionRefs.applications} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Applications Gallery
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {product.applications.map((app, idx) => (
-                <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-4 flex flex-col justify-between">
-                  <div className="w-full h-24 bg-gray-100 rounded mb-3 flex items-center justify-center text-gray-400 font-mono text-[9px] uppercase tracking-wider select-none border border-gray-200">
-                    Application Layout {idx + 1}
-                  </div>
-                  <span className="font-sans text-xs font-bold text-gray-700 uppercase leading-snug">{app}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 6. Product Demonstration Video (Coming Soon) */}
-          <div ref={sectionRefs.video} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Product Demonstration Video
-            </h2>
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-200 bg-[#f3f4f6] flex flex-col items-center justify-center p-6 shadow-2xs select-none">
-              {/* Coming Soon status badge */}
-              <div className="absolute top-4 right-4 bg-[#005f6d] text-white text-[10px] font-mono uppercase tracking-widest font-bold px-3 py-1 rounded">
-                Coming Soon
-              </div>
-
-              {/* Large Play Icon placeholder */}
-              <div className="w-16 h-16 rounded-full bg-white/80 border border-gray-200 flex items-center justify-center mb-4 shadow-sm hover:scale-105 transition-transform duration-300">
-                <Play className="w-6 h-6 text-[#005f6d] fill-[#005f6d] ml-1" />
-              </div>
-              
-              <h3 className="font-sans text-[20px] font-bold text-gray-900 uppercase mb-2">
-                Product Demonstration Video
-              </h3>
-              <p className="font-sans text-sm text-gray-500 leading-normal font-semibold">
-                This product demonstration video will be added soon.
-              </p>
-            </div>
-          </div>
-
-          {/* 7. Download Brochure (PDF from the public folder) */}
-          <div ref={sectionRefs.brochure} className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs">
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-              Download Brochure
-            </h2>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-gray-50 rounded border border-gray-200">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-red-50 rounded border border-red-200 text-red-600">
-                  <FileText className="w-10 h-10" />
-                </div>
-                <div>
-                  <h3 className="font-sans text-[18px] font-bold text-gray-900 uppercase">
-                    Flow Force Indonesia - Industrial Sifting & Separation Systems
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 font-semibold">
-                    File Type: PDF Document • Size: 3.0 MB
-                  </p>
-                </div>
-              </div>
-              
-              {/* Brochure Action Controls */}
-              <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                <button
-                  onClick={handleDownload}
-                  className="flex-grow md:flex-grow-0 py-2.5 px-6 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded text-xs uppercase tracking-wider transition-colors cursor-pointer"
-                >
-                  Download Brochure
-                </button>
-                <a
-                  href="/COMPANY PROFILE FLOW FORCE INDONESIA 2026.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-grow md:flex-grow-0 py-2.5 px-6 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded text-xs uppercase tracking-wider text-center transition-colors cursor-pointer"
-                >
-                  View PDF
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 8. Related Products Section */}
-        <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs mt-16 text-left">
-          <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase border-b border-gray-200 pb-3 mb-6">
-            Related Products
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedProducts.slice(0, 3).map((prod) => (
-              <div
-                key={prod.id}
-                onClick={() => {
-                  onNavigateProduct(prod.id);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#005f6d] rounded p-4 text-left cursor-pointer transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="w-full h-32 bg-white rounded border border-gray-100 flex items-center justify-center p-3 mb-4">
-                    <img src={prod.image} alt={prod.name} className="max-h-full max-w-full object-contain" />
-                  </div>
-                  <h3 className="font-sans text-xs font-black text-gray-900 uppercase mb-1">{prod.name}</h3>
-                  <span className="font-mono text-[9px] text-[#005f6d] uppercase font-bold">{prod.category}</span>
-                </div>
-                <span className="text-[#005f6d] font-sans text-xs font-bold uppercase mt-4 block">View Specifications →</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 9. Request Quote Section (includes Configurable Options & RFQ Form) */}
-        <div id="quote-form-section" className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs mt-16 text-left">
-          <div className="max-w-2xl mx-auto">
             
-            {/* Options configuration check-list inside the form section for clean flow */}
-            <div className="mb-10 pb-8 border-b border-gray-200">
-              <h3 className="font-sans text-[22px] font-bold text-gray-900 uppercase mb-3">
-                Configurable Options
-              </h3>
-              <p className="text-sm text-gray-500 mb-6 font-semibold">Select your process modifications below to automatically include them in your technical RFQ scoping brief.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {product.options.map((opt) => {
-                  const isSelected = !!selectedOptions[opt.name];
-                  return (
-                    <div
-                      key={opt.name}
-                      onClick={() => handleOptionToggle(opt.name)}
-                      className={`p-4 rounded border text-left cursor-pointer transition-all ${
-                        isSelected
-                          ? 'bg-[#005f6d]/5 border-[#005f6d] shadow-2xs'
-                          : 'bg-white border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-sans text-base font-bold text-gray-900 uppercase">{opt.name}</h4>
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${
-                          isSelected ? 'bg-[#005f6d] border-[#005f6d] text-white' : 'border-gray-300'
-                        }`}>
-                          {isSelected && <span className="text-[10px] font-bold">✓</span>}
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-500">{opt.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
+            {/* Live simulation banner */}
+            <div className="flex items-center gap-1.5 mb-6">
+              <span className={`w-2 h-2 rounded-full bg-[#f5820c] ${isRunning ? 'animate-pulse' : ''}`} />
+              <span className="font-mono text-xs text-[#f5820c] uppercase font-bold tracking-widest">
+                {isRunning ? 'Live Simulation Active' : 'Simulation Paused'}
+              </span>
             </div>
 
-            <h2 className="font-sans text-[28px] md:text-[32px] font-semibold text-gray-900 uppercase mb-4 text-center">
-              Request Technical Quote
-            </h2>
-            <p className="text-sm text-gray-500 text-center mb-8">
-              Submit your project parameters and options below to receive an engineering datasheet proposal response.
-            </p>
+            {/* Vertical timeline steps */}
+            <div className="relative space-y-7 text-left pl-3">
+              {/* Vertical line connecting steps (centered at left-25px to match w-8 circles) */}
+              <div className="absolute left-[25px] top-4 bottom-4 w-0.5 bg-[rgba(245,130,12,0.18)] z-0" />
+              
+              {TIMELINE_STEPS.map((step, idx) => {
+                const isActive = activeStep === idx;
+                return (
+                  <div 
+                    key={step.id} 
+                    onClick={() => setActiveStep(idx)}
+                    className="flex gap-4 items-start relative z-10 cursor-pointer group"
+                  >
+                    {/* Circle badge */}
+                    <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-mono text-xs font-bold transition-all shrink-0 ${
+                      isActive 
+                        ? 'bg-[#f5820c] border-[#f5820c] text-[#ffffff] shadow-[0_0_8px_rgba(245,130,12,0.6)]'
+                        : 'border-[rgba(245,130,12,0.4)] text-[#f5b866] bg-[#120a03]/90 group-hover:border-[#f5820c]'
+                    }`}>
+                      {step.num}
+                    </div>
 
-            {submitted ? (
-              <div className="p-6 bg-green-50 border border-green-200 rounded-lg flex flex-col items-center gap-3">
-                <CheckCircle className="w-12 h-12 text-green-500" />
-                <h3 className="font-sans text-base font-bold text-green-800 uppercase">Enquiry Submitted Successfully</h3>
-                <p className="text-sm text-green-600 text-center font-semibold">
-                  Flow Force engineers will review your selected options ({getSelectedOptionsString() || 'None'}) and contact you within 24 business hours.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleFormSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Contact Name *</label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
-                    />
+                    <div className="text-left">
+                      <span className={`font-display text-sm md:text-base tracking-wider block font-bold transition-colors ${
+                        isActive ? 'text-[#f5820c]' : 'text-[#ffffff] group-hover:text-[#f5b866]'
+                      }`}>
+                        {step.name}
+                      </span>
+                      <p className="font-sans text-xs md:text-sm text-[#f5b866]/70 leading-normal mt-0.5">
+                        {step.desc}
+                      </p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Company *</label>
-                    <input
-                      type="text"
-                      name="company"
-                      required
-                      value={formData.company}
-                      onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
-                    />
-                  </div>
-                </div>
+                );
+              })}
+            </div>
+          </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Email *</label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Phone</label>
-                    <input
-                      type="text"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleFormChange}
-                      className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Product Selected</label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={product.name}
-                    className="w-full py-2.5 px-3 bg-gray-100 border border-gray-200 rounded text-base text-gray-500 font-bold uppercase focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Configured Upgrades</label>
-                  <textarea
-                    readOnly
-                    rows="2"
-                    value={getSelectedOptionsString() || 'No upgrades selected.'}
-                    className="w-full py-2.5 px-3 bg-gray-100 border border-gray-200 rounded text-sm text-gray-500 leading-normal focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-mono text-xs text-gray-500 uppercase font-bold block">Process Details / Application Notes</label>
-                  <textarea
-                    name="additionalInfo"
-                    rows="3"
-                    value={formData.additionalInfo}
-                    onChange={handleFormChange}
-                    placeholder="Enter pressure limits, chemical attributes, operating duty cycles, etc."
-                    className="w-full py-2.5 px-3 bg-gray-50 border border-gray-300 rounded text-base focus:outline-[#005f6d] focus:bg-white"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#005f6d] hover:bg-[#00363f] text-white font-bold rounded uppercase text-lg tracking-wider transition-colors cursor-pointer"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>Submit Engineering RFQ</span>
-                </button>
-              </form>
-            )}
+          {/* Footer Controls */}
+          <div className="border-t border-[rgba(245,130,12,0.12)] pt-4 mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={handleTogglePlay}
+              className="py-3 px-4 rounded border border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-transparent text-[#ffffff] hover:text-[#f5820c] font-display text-xs tracking-widest font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Play className="w-3.5 h-3.5" />
+              <span>{isRunning ? 'PAUSE' : 'PLAY'}</span>
+            </button>
+            <button
+              onClick={handleRestart}
+              className="py-3 px-4 rounded border border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-transparent text-[#ffffff] hover:text-[#f5820c] font-display text-xs tracking-widest font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>RESTART</span>
+            </button>
           </div>
         </div>
-      </div>
+
+        {/* ─── CENTER: MEDIA STAGE (6 COLS) ─── */}
+        <div className="lg:col-span-6 flex flex-col gap-4 relative justify-center">
+          
+          {/* Glowing Circular turntable platform */}
+          <div className="absolute w-[440px] h-[440px] rounded-full border border-[rgba(245,130,12,0.15)] bottom-22 left-1/2 -translate-x-1/2 flex items-center justify-center z-0 animate-turntable-glow pointer-events-none">
+            <div className="absolute w-[390px] h-[390px] rounded-full border border-[rgba(245,130,12,0.06)]" />
+            <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(245,130,12,0.08)_100%)]" />
+          </div>
+
+          {/* Expanded Video Telemetry Frame */}
+          <div className="w-full h-[520px] border border-[rgba(245,130,12,0.15)] rounded-2xl overflow-hidden shadow-2xl relative glass-panel-gold z-10">
+            <div className="absolute top-2.5 left-4.5 z-10 flex items-center gap-1.5 bg-[#120a03]/60 px-2.5 py-1.5 rounded-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f5820c] animate-pulse" />
+              <span className="font-mono text-[9px] text-[#f5b866] font-bold uppercase tracking-widest">
+                TELEMETRY FEED // PROCESS LABS ANIMATION
+              </span>
+            </div>
+            
+            {/* Absolute positioned callout badges over center frame */}
+            <div className="absolute inset-0 pointer-events-none z-20">
+              {TIMELINE_STEPS.map((step, idx) => {
+                const isActive = activeStep === idx;
+                return (
+                  <button
+                    key={step.id}
+                    onClick={() => setActiveStep(idx)}
+                    style={{ top: step.badgePos.top, left: step.badgePos.left }}
+                    className={`absolute pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-black shadow-lg transition-all duration-300 cursor-pointer ${
+                      isActive 
+                        ? 'bg-[#f5820c] text-[#ffffff] scale-125 shadow-[0_0_15px_rgba(245,130,12,0.85)] border border-white' 
+                        : 'bg-white text-[#120a03] hover:scale-110'
+                    }`}
+                  >
+                    {step.num}
+                  </button>
+                );
+              })}
+            </div>
+
+            <video
+              ref={videoRef}
+              src="/Centrifugal_sifter_product_animation_202607031211_gwr_video_mvp.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls
+              className="w-full h-full object-cover opacity-90"
+            />
+          </div>
+        </div>
+
+        {/* ─── RIGHT: HIGHLIGHTS & OVERVIEW (3 COLS) ─── */}
+        <div className="lg:col-span-3 flex flex-col justify-between gap-4 text-left">
+          
+          {/* Card 1: Key Highlights */}
+          <div className="glass-panel-gold rounded-2xl p-5 relative">
+            <span className="font-display text-sm md:text-base tracking-wider text-[#ffffff] font-extrabold block mb-4 uppercase">
+              KEY HIGHLIGHTS
+            </span>
+            <div className="space-y-4">
+              {[
+                { title: 'HIGH SCREENING EFFICIENCY', desc: 'Up to 99% separation accuracy.', icon: <Award className="w-5 h-5 text-[#f5820c]" /> },
+                { title: 'LOW MAINTENANCE', desc: 'Minimal moving parts for long-term use.', icon: <Settings className="w-5 h-5 text-[#f5820c]" /> },
+                { title: 'HYGIENIC DESIGN', desc: 'FDA-compliant contact assemblies.', icon: <ShieldCheck className="w-5 h-5 text-[#f5820c]" /> },
+                { title: 'EASY & QUICK CLEANING', desc: 'Hygienic tool-free access hatch doors.', icon: <RefreshCw className="w-5 h-5 text-[#f5820c]" /> },
+                { title: 'FOOD & PHARMA GRADE', desc: 'SS316L high polish sanitary standard.', icon: <Shield className="w-5 h-5 text-[#f5820c]" /> }
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-3.5 items-start">
+                  <div className="w-9 h-9 rounded-md border border-[rgba(245,130,12,0.35)] flex items-center justify-center shrink-0">
+                    {item.icon}
+                  </div>
+                  <div className="text-left leading-normal">
+                    <span className="font-display text-xs md:text-sm tracking-wide block font-black text-[#ffffff]">{item.title}</span>
+                    <span className="font-sans text-xs text-[#f5b866]/70 block mt-0.5">{item.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Card 2: Machine Overview */}
+          <div className="glass-panel-gold rounded-2xl p-5 relative flex flex-col justify-between gap-4">
+            <div>
+              <span className="font-display text-sm md:text-base tracking-wider text-[#ffffff] font-extrabold block mb-4 uppercase">
+                MACHINE OVERVIEW
+              </span>
+              <div className="space-y-2.5 font-mono text-xs md:text-sm">
+                {[
+                  { label: 'Model', val: 'FF-CS-1200' },
+                  { label: 'Motor Power', val: '7.5 kW' },
+                  { label: 'Screen Diameter', val: '1200 mm' },
+                  { label: 'Screen Layers', val: '1 to 5' },
+                  { label: 'Capacity', val: '500 - 5000 kg/hr' },
+                  { label: 'Material', val: 'SS 304 / SS 316' }
+                ].map((spec, i) => (
+                  <div key={i} className="flex justify-between py-1.5 border-b border-[rgba(245,130,12,0.06)] last:border-0">
+                    <span className="text-gray-400 uppercase font-semibold">{spec.label}</span>
+                    <span className="text-[#f5820c] font-black uppercase">{spec.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Pinned tagline */}
+          <div className="text-right select-none pr-2">
+            <h4 className="font-display text-base md:text-lg font-black text-white leading-none tracking-widest">BUILT FOR PRECISION.</h4>
+            <h4 className="font-display text-base md:text-lg font-black text-[#f5820c] leading-none tracking-widest mt-1">ENGINEERED TO PERFORM.</h4>
+          </div>
+          
+        </div>
+      </main>
+
+      {/* ─── BOTTOM ACTION BAR ─── */}
+      <footer className="w-full max-w-7xl mx-auto px-6 md:px-12 mt-6 z-20 flex justify-center">
+        <div className="bg-[rgba(20,12,4,0.7)] border border-[rgba(245,130,12,0.35)] rounded-full p-2.5 flex flex-wrap justify-center gap-3.5 shadow-lg max-w-full overflow-x-auto scrollbar-none">
+          {[
+            { id: '360', name: '360° VIEW', icon: <RotateCw className="w-4 h-4" />, action: () => handleSelectThumb('complete') },
+            { id: 'exploded', name: 'EXPLODED VIEW', icon: <Layers className="w-4 h-4" />, action: () => setIsExploded(!isExploded) },
+            { id: 'apps', name: 'APPLICATIONS', icon: <Activity className="w-4 h-4" />, action: () => setActiveStep(1) },
+            { id: 'specs', name: 'SPECS', icon: <Sliders className="w-4 h-4" />, action: () => setActiveStep(2) },
+            { id: 'downloads', name: 'DOWNLOADS', icon: <Download className="w-4 h-4" />, action: handleDownload }
+          ].map((btn) => {
+            const isExplodedActive = btn.id === 'exploded' && isExploded;
+            
+            return (
+              <button
+                key={btn.id}
+                onClick={btn.action}
+                className={`py-2.5 px-8 rounded-full border font-display text-xs font-bold tracking-widest uppercase flex items-center gap-2 transition-all cursor-pointer ${
+                  isExplodedActive 
+                    ? 'bg-[#f5820c] text-[#120a03] border-[#f5820c] shadow-[0_0_10px_rgba(245,130,12,0.4)]'
+                    : 'border-[rgba(245,130,12,0.25)] hover:border-[#f5820c] bg-transparent text-[#ffffff] hover:text-[#f5b866]'
+                }`}
+              >
+                {btn.icon}
+                <span>{btn.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </footer>
+
     </div>
   );
 }
