@@ -56,7 +56,6 @@ export default function ProductDetail({ productId, onBack }) {
   const [isSectionCut, setIsSectionCut] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
 
   const videoRef = useRef(null);
 
@@ -64,6 +63,14 @@ export default function ProductDetail({ productId, onBack }) {
     const video = videoRef.current;
     if (!video) return;
     video.muted = true;
+
+    // Safely enforce looping on ended event across browsers
+    const handleEnded = () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    };
+    video.addEventListener('ended', handleEnded);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -77,8 +84,12 @@ export default function ProductDetail({ productId, onBack }) {
       { threshold: 0.1 }
     );
     observer.observe(video);
+
     return () => {
-      if (video) observer.unobserve(video);
+      if (video) {
+        observer.unobserve(video);
+        video.removeEventListener('ended', handleEnded);
+      }
     };
   }, []);
 
@@ -172,12 +183,7 @@ export default function ProductDetail({ productId, onBack }) {
 
         {/* Right Icon Buttons */}
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setIsMuted(!isMuted)}
-            className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
+
           <button 
             onClick={handleToggleFullscreen}
             className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.3)] hover:border-[#f5820c] flex items-center justify-center text-[#ffffff] hover:text-[#f5820c] transition-all bg-transparent cursor-pointer"
