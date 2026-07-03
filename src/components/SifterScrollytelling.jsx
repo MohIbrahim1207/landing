@@ -94,11 +94,33 @@ export default function SifterScrollytelling() {
     ctx.drawImage(img, x, y, imgW * scale, imgH * scale);
   };
 
-  // Scroll mapping event handler
+  // Auto-play frames in a continuous loop at ~30fps
+  useEffect(() => {
+    if (prefersReducedMotion || !isPreloaded) return;
+
+    let frameIndex = 0;
+    let animId;
+    let lastTime = 0;
+    const fps = 30;
+    const frameDuration = 1000 / fps;
+
+    const animate = (timestamp) => {
+      if (timestamp - lastTime >= frameDuration) {
+        drawFrame(frameIndex);
+        frameIndex = (frameIndex + 1) % 192;
+        lastTime = timestamp;
+      }
+      animId = requestAnimationFrame(animate);
+    };
+
+    animId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animId);
+  }, [prefersReducedMotion, isPreloaded]);
+
+  // Scroll progress tracker for text overlay fades only
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    let rAF;
     const handleScroll = () => {
       const hero = containerRef.current;
       if (!hero) return;
@@ -106,24 +128,12 @@ export default function SifterScrollytelling() {
       const rect = hero.getBoundingClientRect();
       const scrollRange = rect.height - window.innerHeight;
       const currentScroll = -rect.top;
-
       const scrollPercent = Math.max(0, Math.min(1, currentScroll / scrollRange));
-
-      rAF = requestAnimationFrame(() => {
-        setProgress(scrollPercent);
-        const frameIndex = Math.min(191, Math.round(scrollPercent * 191));
-        drawFrame(frameIndex);
-      });
+      setProgress(scrollPercent);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-      cancelAnimationFrame(rAF);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [prefersReducedMotion]);
 
   // Helper function to compute smooth opacities for text overlays
