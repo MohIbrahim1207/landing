@@ -1,201 +1,243 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Sliders, Layers, ChevronDown } from 'lucide-react';
 
-export default function SifterScrollytelling() {
+const TOTAL_FRAMES = 192;
+const SCROLL_TRACK_HEIGHT = '400vh'; // Total scrollable height for the sequence
+
+// Helper for zero-padding frame numbers
+const getFramePath = (index) => {
+  const num = (index + 1).toString().padStart(3, '0');
+  return `/sequence/ezgif-frame-${num}.jpg`;
+};
+
+function SifterScrollytelling() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
-
-  const [progress, setProgress] = useState(0);
-  const [preloadProgress, setPreloadProgress] = useState(0);
-  const [isPreloaded, setIsPreloaded] = useState(false);
+  
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  // Array to cache loaded Image elements
+  const [progress, setProgress] = useState(0);
+  
+  // Preloading state
+  const [isPreloaded, setIsPreloaded] = useState(false);
+  const [preloadProgress, setPreloadProgress] = useState(0);
+  
+  // Store image objects
   const imagesRef = useRef([]);
 
+  // Check prefers-reduced-motion
   useEffect(() => {
-    // 1. Detect motion preferences
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(motionQuery.matches);
-    const handleMotionChange = (e) => setPrefersReducedMotion(e.matches);
-    motionQuery.addEventListener('change', handleMotionChange);
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const listener = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', listener);
+    return () => mediaQuery.removeEventListener('change', listener);
+  }, []);
 
-    // 2. Preloading frames sequence (192 frames)
-    const totalFrames = 192;
-    let loadedCount = 0;
-    const imageElements = [];
+  // Preloading logic
+  useEffect(() => {
+    let isMounted = true;
+    const images = [];
+    imagesRef.current = images;
 
-    // Preload Frame 1 immediately
-    const firstFrame = new Image();
-    firstFrame.src = `/sequence/ezgif-frame-001.jpg`;
-    firstFrame.onload = () => {
-      imagesRef.current[0] = firstFrame;
-      loadedCount++;
-      setPreloadProgress(Math.round((loadedCount / totalFrames) * 100));
-      drawFrame(0); // draw frame 1 immediately
-
-      // Batch load the remaining 191 frames asynchronously
-      const promises = [];
-      for (let i = 2; i <= totalFrames; i++) {
-        promises.push(
-          new Promise((resolve) => {
-            const img = new Image();
-            const frameIndex = String(i).padStart(3, '0');
-            img.src = `/sequence/ezgif-frame-${frameIndex}.jpg`;
-            img.onload = () => {
-              imagesRef.current[i - 1] = img;
-              loadedCount++;
-              setPreloadProgress(Math.round((loadedCount / totalFrames) * 100));
-              resolve();
-            };
-            img.onerror = () => {
-              loadedCount++;
-              resolve(); // resolve to not block
-            };
-          })
-        );
-      }
-
-      Promise.all(promises).then(() => {
-        setIsPreloaded(true);
+    const loadFrame = (idx) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = getFramePath(idx);
+        img.onload = () => {
+          images[idx] = img;
+          resolve(img);
+        };
+        img.onerror = reject;
       });
     };
 
-    return () => {
-      motionQuery.removeEventListener('change', handleMotionChange);
+    const initSequence = async () => {
+      try {
+        const firstFrame = await loadFrame(0);
+        if (!isMounted) return;
+        
+        drawFrameToCanvas(firstFrame);
+        
+        if (prefersReducedMotion) {
+          setIsPreloaded(true);
+          return;
+        }
+
+        let loadedCount = 1;
+        const promises = [];
+        for (let i = 1; i < TOTAL_FRAMES; i++) {
+          promises.push(
+            loadFrame(i).then(() => {
+              if (isMounted) {
+                loadedCount++;
+                setPreloadProgress(Math.floor((loadedCount / TOTAL_FRAMES) * 100));
+              }
+            })
+          );
+        }
+
+        await Promise.all(promises);
+        if (isMounted) {
+          setIsPreloaded(true);
+        }
+      } catch (err) {
+        console.error('Error loading frame sequence:', err);
+        if (isMounted) setIsPreloaded(true);
+      }
     };
-  }, []);
 
-  // Aspect-ratio correction drawing utility
-  const drawFrame = (index) => {
+    initSequence();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [prefersReducedMotion]);
+
+  // Canvas drawing with object-fit: cover logic
+  const drawFrameToCanvas = (img) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const img = imagesRef.current[index];
-    if (!img) return;
+    if (!canvas || !img) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    if (canvas.width !== rect.width || canvas.height !== rect.height) {
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
 
-    const w = rect.width;
-    const h = rect.height;
-    const imgW = img.width;
-    const imgH = img.height;
+    const { width: w, height: h } = canvas;
+    const { naturalWidth: imgW, naturalHeight: imgH } = img;
 
-    // Scale to "cover" canvas
     const scale = Math.max(w / imgW, h / imgH);
-    const x = (w - imgW * scale) / 2;
-    const y = (h - imgH * scale) / 2;
+    const drawW = imgW * scale;
+    const drawH = imgH * scale;
+    
+    const x = (w - drawW) / 2;
+    const y = (h - drawH) / 2;
 
-    ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(img, x, y, imgW * scale, imgH * scale);
+    ctx.fillStyle = '#120a03';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, x, y, drawW, drawH);
   };
 
-  // Auto-play frames in a continuous loop at ~30fps
   useEffect(() => {
-    if (prefersReducedMotion || !isPreloaded) return;
-
-    let frameIndex = 0;
-    let animId;
-    let lastTime = 0;
-    const fps = 30;
-    const frameDuration = 1000 / fps;
-
-    const animate = (timestamp) => {
-      if (timestamp - lastTime >= frameDuration) {
-        drawFrame(frameIndex);
-        frameIndex = (frameIndex + 1) % 192;
-        lastTime = timestamp;
+    const handleResize = () => {
+      const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.round(progress * (TOTAL_FRAMES - 1)));
+      if (imagesRef.current[frameIndex]) {
+        drawFrameToCanvas(imagesRef.current[frameIndex]);
       }
-      animId = requestAnimationFrame(animate);
     };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [progress]);
 
-    animId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animId);
-  }, [prefersReducedMotion, isPreloaded]);
-
-  // Scroll progress tracker for text overlay fades only
+  // Scroll handler using requestAnimationFrame
   useEffect(() => {
     if (prefersReducedMotion) return;
 
+    let rAF;
     const handleScroll = () => {
-      const hero = containerRef.current;
-      if (!hero) return;
+      const container = containerRef.current;
+      if (!container) return;
 
-      const rect = hero.getBoundingClientRect();
+      const rect = container.getBoundingClientRect();
       const scrollRange = rect.height - window.innerHeight;
       const currentScroll = -rect.top;
-      const scrollPercent = Math.max(0, Math.min(1, currentScroll / scrollRange));
-      setProgress(scrollPercent);
+
+      const currentProgress = Math.max(0, Math.min(1, currentScroll / scrollRange));
+
+      rAF = requestAnimationFrame(() => {
+        setProgress(currentProgress);
+        const frameIndex = Math.round(currentProgress * (TOTAL_FRAMES - 1));
+        const img = imagesRef.current[frameIndex];
+        if (img) {
+          drawFrameToCanvas(img);
+        }
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(rAF);
+    };
   }, [prefersReducedMotion]);
 
-  // Helper function to compute smooth opacities for text overlays
   const getOverlayOpacity = (scroll, start, end) => {
     if (scroll < start || scroll > end) return 0;
-    const range = end - start;
-    const relative = scroll - start;
-    const fadeInWindow = range * 0.15; // 15% fade-in
-    const fadeOutWindow = range * 0.15; // 15% fade-out
-
-    if (relative < fadeInWindow) {
-      return relative / fadeInWindow;
-    }
-    if (relative > range - fadeOutWindow) {
-      return (range - relative) / fadeOutWindow;
+    const fadeWindow = 0.05;
+    if (scroll < start + fadeWindow) {
+      return (scroll - start) / fadeWindow;
+    } else if (scroll > end - fadeWindow) {
+      return (end - scroll) / fadeWindow;
     }
     return 1;
   };
 
   const handleExploreClick = () => {
-    const hero = containerRef.current;
-    if (hero) {
-      const heroHeight = hero.offsetHeight;
-      window.scrollTo({
-        top: heroHeight,
-        behavior: prefersReducedMotion ? 'instant' : 'smooth'
-      });
+    if (containerRef.current) {
+       const rect = containerRef.current.getBoundingClientRect();
+       window.scrollBy({ top: rect.bottom, behavior: 'smooth' });
     }
   };
 
-  // Static stack layout for prefers-reduced-motion
   if (prefersReducedMotion) {
     return (
-      <div className="w-full bg-[#120a03] text-left py-16 px-6 md:px-12 space-y-16 border-b border-[rgba(245,130,12,0.15)] relative z-10">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-8 items-center">
-          <div className="w-full md:w-1/2 h-80 border border-[rgba(245,130,12,0.15)] rounded-2xl overflow-hidden shadow-lg bg-[#150a04] flex items-center justify-center">
-            <img src="/sequence/ezgif-frame-001.jpg" alt="Centrifugal Sifter Complete" className="max-h-full object-contain" />
-          </div>
-          <div className="space-y-4">
-            <h2 className="font-display font-black text-3xl text-white tracking-widest uppercase">Flow Force RG Sifter</h2>
-            <p className="font-sans text-lg text-[#f5b866] font-bold">Precision, in every particle.</p>
-          </div>
+      <div className="relative w-full pt-28 pb-12 flex flex-col items-center">
+        <div className="w-full h-[60vh] relative mb-12 bg-[#120a03]">
+           <canvas ref={canvasRef} className="w-full h-full object-cover" />
         </div>
+        
+        <div className="max-w-4xl mx-auto px-6 space-y-16 text-center">
+          <div className="glass-panel p-8 rounded-2xl">
+            <h2 className="font-display font-black text-4xl md:text-6xl text-[#1A1A1A] tracking-widest uppercase mb-4">
+              Flow Force RG Sifter
+            </h2>
+            <p className="font-mono text-sm md:text-base text-[#f5820c] tracking-[0.2em] uppercase font-bold">
+              Precision, in every particle.
+            </p>
+          </div>
+          
+          <div className="text-left space-y-3 glass-panel p-8 rounded-2xl">
+            <h3 className="font-display text-2xl md:text-4xl font-black text-[#1A1A1A] uppercase tracking-wider">
+              Precision-engineered for throughput.
+            </h3>
+            <p className="font-sans text-sm text-[#4A4A4A] leading-relaxed font-semibold max-w-2xl">
+              Tensioned mesh decks and double-sealed hygienic housing safeguard processing flows from external containment risks.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto border-t border-[rgba(245,130,12,0.08)] pt-12">
-          <div className="space-y-2">
-            <h3 className="font-display text-lg font-bold text-white uppercase">Precision-engineered for throughput</h3>
-            <p className="font-sans text-sm text-[#f5b866]/70 leading-relaxed">Tensioned mesh decks and double-sealed hygienic housing safeguard processing flows.</p>
+          <div className="text-right space-y-3 flex flex-col items-end glass-panel p-8 rounded-2xl">
+            <h3 className="font-display text-2xl md:text-4xl font-black text-[#1A1A1A] uppercase tracking-wider">
+              Gyratory motion, redefined.
+            </h3>
+            <p className="font-sans text-sm text-[#4A4A4A] leading-relaxed font-semibold max-w-2xl text-right">
+              Advanced horizontally balanced drive delivers consistent centrifugal screening grading without material degradation.
+            </p>
           </div>
-          <div className="space-y-2">
-            <h3 className="font-display text-lg font-bold text-white uppercase">Gyratory motion, redefined</h3>
-            <p className="font-sans text-sm text-[#f5b866]/70 leading-relaxed">Advanced horizontal balanced drive delivers consistent grading without material degradation.</p>
+
+          <div className="text-left space-y-3 glass-panel p-8 rounded-2xl">
+            <h3 className="font-display text-2xl md:text-4xl font-black text-[#1A1A1A] uppercase tracking-wider">
+              Clean separation, every pass.
+            </h3>
+            <p className="font-sans text-sm text-[#4A4A4A] leading-relaxed font-semibold max-w-2xl">
+              Hygienic tool-free access hatches enable quick classifier screen inspection or mesh replacements for rapid changeovers.
+            </p>
           </div>
-          <div className="space-y-2">
-            <h3 className="font-display text-lg font-bold text-white uppercase">Clean separation, every pass</h3>
-            <p className="font-sans text-sm text-[#f5b866]/70 leading-relaxed">Hygienic tool-free access hatches enable screen inspection or mesh replacements in seconds.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-display text-lg font-bold text-white uppercase">Screen everything. Compromise nothing.</h3>
-            <div className="flex gap-4 pt-2">
-              <button onClick={handleExploreClick} className="py-2.5 px-6 rounded-full bg-[#f5820c] hover:bg-[#ff9900] text-[#120a03] font-display text-[10px] font-bold tracking-widest uppercase cursor-pointer shadow-md">
-                Experience RG Sifter
+
+          <div className="pt-8 space-y-6 glass-panel p-8 rounded-2xl">
+            <h3 className="font-display font-black text-3xl md:text-5xl text-[#1A1A1A] tracking-widest uppercase">
+              Screen everything. Compromise nothing.
+            </h3>
+            <div className="flex justify-center gap-4 pt-4">
+              <button
+                onClick={handleExploreClick}
+                className="py-3 px-8 rounded-full bg-[#f5820c] hover:bg-[#d97706] text-white font-display text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_12px_rgba(245,130,12,0.5)] cursor-pointer"
+              >
+                Experience the RG Sifter
               </button>
             </div>
           </div>
@@ -205,125 +247,126 @@ export default function SifterScrollytelling() {
   }
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative w-full z-10" 
-      style={{ height: '400vh' }}
+    <div
+      ref={containerRef}
+      className="relative w-full z-10"
+      style={{ height: SCROLL_TRACK_HEIGHT }}
     >
-      {/* Preloading Overlay Indicator */}
       {!isPreloaded && (
-        <div className="absolute inset-0 bg-[#120a03] z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F7F5F2] pointer-events-none transition-opacity duration-500">
           <div className="text-center space-y-4">
             <div className="w-10 h-10 border-2 border-[#f5820c] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="font-mono text-xs font-bold text-[#f5b866] uppercase tracking-widest">
-              Buffering Cinematic Stream... {preloadProgress}%
+            <p className="font-mono text-xs font-bold text-[#f5820c] uppercase tracking-widest">
+              Loading Sequence {preloadProgress}%
             </p>
           </div>
         </div>
       )}
 
-      {/* Sticky Canvas Viewport container */}
-      <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center bg-[#120a03]">
-        <div className="absolute inset-0 bg-blueprint-grid-gold opacity-15 pointer-events-none z-10" />
-        <div className="absolute inset-0 bg-vignette-ambient z-15" />
+      {/* Sticky Viewport with pt-20 (80px) to offset the global header */}
+      <div className="sticky top-0 w-full h-screen bg-[#120a03] pt-20 overflow-hidden">
+        
+        {/* Inner relative container ensures all absolute positions start BELOW the 80px header padding */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          <div className="absolute inset-0 bg-vignette-ambient z-10 pointer-events-none" />
+          
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full z-0 object-cover opacity-80"
+          />
 
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full object-cover opacity-85 z-0"
-        />
-
-        {/* Absolute scrollytelling text overlays */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center px-6 pt-36 pointer-events-none select-none">
-
-          {/* Section 1: 0% - 15% (Centered Hero Copy) */}
-          <div
-            style={{ opacity: getOverlayOpacity(progress, 0.0, 0.15) }}
-            className="text-center space-y-3 transition-opacity duration-100"
-          >
-            <h2 className="font-display font-black text-4xl md:text-6xl text-white tracking-widest uppercase">
-              Flow Force RG Sifter
-            </h2>
-            <p className="font-sans text-base md:text-xl text-[#f5b866] font-bold tracking-wide">
-              Precision, in every particle.
-            </p>
-          </div>
-
-          {/* Section 2: 15% - 40% (Left-aligned Copy) */}
-          <div
-            style={{ opacity: getOverlayOpacity(progress, 0.15, 0.40) }}
-            className="absolute left-6 md:left-24 max-w-sm md:max-w-md text-left space-y-3 transition-opacity duration-100"
-          >
-            <h3 className="font-display text-2xl md:text-4xl font-black text-white uppercase tracking-wider">
-              Precision-engineered for throughput.
-            </h3>
-            <p className="font-sans text-xs md:text-sm text-[#f5b866]/80 leading-relaxed font-semibold">
-              Tensioned mesh decks and double-sealed hygienic housing safeguard processing flows from external containment risks.
-            </p>
-          </div>
-
-          {/* Section 3: 40% - 65% (Right-aligned Copy) */}
-          <div
-            style={{ opacity: getOverlayOpacity(progress, 0.40, 0.65) }}
-            className="absolute right-6 md:right-24 max-w-sm md:max-w-md text-left space-y-3 transition-opacity duration-100"
-          >
-            <h3 className="font-display text-2xl md:text-4xl font-black text-white uppercase tracking-wider">
-              Gyratory motion, redefined.
-            </h3>
-            <p className="font-sans text-xs md:text-sm text-[#f5b866]/80 leading-relaxed font-semibold">
-              Advanced horizontally balanced drive delivers consistent centrifugal screening grading without material degradation.
-            </p>
-          </div>
-
-          {/* Section 4: 65% - 85% (Focus Copy) */}
-          <div
-            style={{ opacity: getOverlayOpacity(progress, 0.65, 0.85) }}
-            className="absolute left-6 md:left-32 max-w-sm md:max-w-md text-left space-y-3 transition-opacity duration-100"
-          >
-            <h3 className="font-display text-2xl md:text-4xl font-black text-white uppercase tracking-wider">
-              Clean separation, every pass.
-            </h3>
-            <p className="font-sans text-xs md:text-sm text-[#f5b866]/80 leading-relaxed font-semibold">
-              Hygienic tool-free access hatches enable quick classifier screen inspection or mesh replacements.
-            </p>
-          </div>
-
-          {/* Section 5: 85% - 100% (Centered CTA Copy) */}
-          <div
-            style={{ opacity: getOverlayOpacity(progress, 0.85, 1.0) }}
-            className="text-center space-y-4 pointer-events-auto transition-opacity duration-100 flex flex-col items-center justify-center"
-          >
-            <h3 className="font-display font-black text-3xl md:text-5xl text-white tracking-widest uppercase">
-              Screen everything. Compromise nothing.
-            </h3>
-            <p className="font-sans text-xs md:text-sm text-[#f5b866] font-bold uppercase tracking-widest">
-              Experience the RG Sifter Cockpit Below
-            </p>
-            <div className="flex justify-center gap-4.5 pt-2">
-              <button
-                onClick={handleExploreClick}
-                className="py-3 px-8 rounded-full bg-[#f5820c] hover:bg-[#ff9900] text-[#120a03] font-display text-[10px] font-bold tracking-widest uppercase transition-all shadow-[0_0_12px_rgba(245,130,12,0.5)] cursor-pointer"
-              >
-                Experience RG Sifter
-              </button>
-            </div>
-
-            {/* Bouncing down-chevron explore cue */}
+          {/* Text Overlays Layer */}
+          <div className="absolute inset-0 z-20 pointer-events-none p-6">
+            
+            {/* Section 1: 0% - 15% (Centered Hero) */}
             <div
-              onClick={handleExploreClick}
-              className="mt-6 flex flex-col items-center gap-1.5 cursor-pointer group pointer-events-auto"
+              className="absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity duration-100"
+              style={{ opacity: getOverlayOpacity(progress, 0.0, 0.15) }}
             >
-              <span className="font-display text-[9px] tracking-[0.2em] text-[#f5b866] uppercase font-black opacity-85 group-hover:text-white transition-colors">
-                EXPLORE THE FULL SYSTEM
-              </span>
-              <ChevronDown
-                className={`w-5 h-5 text-[#f5820c] group-hover:text-white transition-colors ${prefersReducedMotion ? '' : 'animate-bounce'
-                  }`}
-              />
+              <div className="glass-panel p-6 md:p-10 rounded-2xl inline-flex flex-col items-center pointer-events-auto">
+                <h2 className="font-display font-black text-4xl md:text-7xl text-[#1A1A1A] tracking-widest uppercase mb-4">
+                  Flow Force RG Sifter
+                </h2>
+                <p className="font-mono text-sm md:text-lg text-[#f5820c] tracking-[0.25em] uppercase font-bold">
+                  Precision, in every particle.
+                </p>
+              </div>
             </div>
-          </div>
 
+            {/* Section 2: 15% - 40% (Left Aligned) */}
+            <div
+              className="absolute left-6 md:left-24 top-1/2 -translate-y-1/2 max-w-sm md:max-w-xl text-left space-y-4 transition-opacity duration-100"
+              style={{ opacity: getOverlayOpacity(progress, 0.15, 0.40) }}
+            >
+              <div className="glass-panel p-6 md:p-8 rounded-2xl pointer-events-auto">
+                <h3 className="font-display text-2xl md:text-5xl font-black text-[#1A1A1A] uppercase tracking-wider mb-4">
+                  Precision-engineered for throughput.
+                </h3>
+                <p className="font-sans text-sm md:text-base text-[#4A4A4A] leading-relaxed font-semibold">
+                  Tensioned mesh decks and double-sealed hygienic housing safeguard processing flows from external containment risks.
+                </p>
+              </div>
+            </div>
+
+            {/* Section 3: 40% - 65% (Right Aligned) */}
+            <div
+              className="absolute right-6 md:right-24 top-1/2 -translate-y-1/2 max-w-sm md:max-w-xl text-right space-y-4 transition-opacity duration-100 flex flex-col items-end"
+              style={{ opacity: getOverlayOpacity(progress, 0.40, 0.65) }}
+            >
+              <div className="glass-panel p-6 md:p-8 rounded-2xl pointer-events-auto">
+                <h3 className="font-display text-2xl md:text-5xl font-black text-[#1A1A1A] uppercase tracking-wider mb-4">
+                  Gyratory motion, redefined.
+                </h3>
+                <p className="font-sans text-sm md:text-base text-[#4A4A4A] leading-relaxed font-semibold">
+                  Advanced horizontally balanced drive delivers consistent centrifugal screening grading without material degradation.
+                </p>
+              </div>
+            </div>
+
+            {/* Section 4: 65% - 85% (Focus Copy - Left Aligned) */}
+            <div
+              className="absolute left-6 md:left-24 top-1/2 -translate-y-1/2 max-w-sm md:max-w-xl text-left space-y-4 transition-opacity duration-100"
+              style={{ opacity: getOverlayOpacity(progress, 0.65, 0.85) }}
+            >
+              <div className="glass-panel p-6 md:p-8 rounded-2xl pointer-events-auto">
+                <h3 className="font-display text-2xl md:text-5xl font-black text-[#1A1A1A] uppercase tracking-wider mb-4">
+                  Clean separation, every pass.
+                </h3>
+                <p className="font-sans text-sm md:text-base text-[#4A4A4A] leading-relaxed font-semibold">
+                  Hygienic tool-free access hatches enable quick classifier screen inspection or mesh replacements for rapid changeovers.
+                </p>
+              </div>
+            </div>
+
+            {/* Section 5: 85% - 100% (Centered CTA) */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center text-center space-y-6 transition-opacity duration-100"
+              style={{ opacity: getOverlayOpacity(progress, 0.85, 1.0) }}
+            >
+              <div className="glass-panel p-8 md:p-12 rounded-3xl inline-flex flex-col items-center pointer-events-auto">
+                <h3 className="font-display font-black text-3xl md:text-6xl text-[#1A1A1A] tracking-widest uppercase px-4 mb-6">
+                  Screen everything.<br/>Compromise nothing.
+                </h3>
+                
+                <div className="flex flex-col items-center gap-4 pt-2">
+                  <button
+                    onClick={handleExploreClick}
+                    className="py-4 px-10 rounded-full bg-[#f5820c] hover:bg-[#d97706] text-white font-display text-xs md:text-sm font-bold tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(245,130,12,0.4)] hover:shadow-[0_0_30px_rgba(245,130,12,0.6)] hover:scale-105 cursor-pointer"
+                  >
+                    Experience the RG Sifter
+                  </button>
+                  <a href="#" className="font-mono text-[10px] text-[#f5820c] hover:text-[#d97706] uppercase tracking-widest underline underline-offset-4 transition-colors mt-2">
+                    See full specs
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default SifterScrollytelling;
