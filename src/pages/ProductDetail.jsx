@@ -423,6 +423,10 @@ export default function ProductDetail({ productId, onBack }) {
               className="w-full h-full object-cover opacity-90"
             />
           </div>
+
+          <div className="text-center font-mono text-[10px] md:text-xs text-[#f5b866]/40 uppercase tracking-[0.2em] mt-1.5 select-none animate-pulse">
+            Images to be added soon. Please stay tuned.
+          </div>
         </div>
 
         {/* ─── RIGHT: HIGHLIGHTS & OVERVIEW (3 COLS) ─── */}
