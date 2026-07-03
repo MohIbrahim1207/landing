@@ -420,7 +420,6 @@ export default function ProductDetail({ productId, onBack }) {
               loop
               muted
               playsInline
-              controls
               className="w-full h-full object-cover opacity-90"
             />
           </div>
