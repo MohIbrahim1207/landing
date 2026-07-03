@@ -4,7 +4,7 @@ import { Download, Sliders, Layers, ChevronDown } from 'lucide-react';
 export default function SifterScrollytelling() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
-  
+
   const [progress, setProgress] = useState(0);
   const [preloadProgress, setPreloadProgress] = useState(0);
   const [isPreloaded, setIsPreloaded] = useState(false);
@@ -106,9 +106,9 @@ export default function SifterScrollytelling() {
       const rect = hero.getBoundingClientRect();
       const scrollRange = rect.height - window.innerHeight;
       const currentScroll = -rect.top;
-      
+
       const scrollPercent = Math.max(0, Math.min(1, currentScroll / scrollRange));
-      
+
       rAF = requestAnimationFrame(() => {
         setProgress(scrollPercent);
         const frameIndex = Math.min(191, Math.round(scrollPercent * 191));
@@ -147,9 +147,9 @@ export default function SifterScrollytelling() {
     const hero = containerRef.current;
     if (hero) {
       const heroHeight = hero.offsetHeight;
-      window.scrollTo({ 
+      window.scrollTo({
         top: heroHeight,
-        behavior: prefersReducedMotion ? 'instant' : 'smooth' 
+        behavior: prefersReducedMotion ? 'instant' : 'smooth'
       });
     }
   };
@@ -195,10 +195,10 @@ export default function SifterScrollytelling() {
   }
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative w-full z-10" 
-      style={{ height: '300vh' }}
+    <div
+      ref={containerRef}
+      className="relative w-full z-10"
+      style={{ height: '400vh' }}
     >
       {/* Preloading Overlay Indicator */}
       {!isPreloaded && (
@@ -217,16 +217,16 @@ export default function SifterScrollytelling() {
         <div className="absolute inset-0 bg-blueprint-grid-gold opacity-15 pointer-events-none z-10" />
         <div className="absolute inset-0 bg-vignette-ambient z-15" />
 
-        <canvas 
-          ref={canvasRef} 
+        <canvas
+          ref={canvasRef}
           className="w-full h-full object-cover opacity-85 z-0"
         />
 
         {/* Absolute scrollytelling text overlays */}
         <div className="absolute inset-0 z-20 flex items-center justify-center px-6 pt-24 pointer-events-none select-none">
-          
+
           {/* Section 1: 0% - 15% (Centered Hero Copy) */}
-          <div 
+          <div
             style={{ opacity: getOverlayOpacity(progress, 0.0, 0.15) }}
             className="text-center space-y-3 transition-opacity duration-100"
           >
@@ -239,7 +239,7 @@ export default function SifterScrollytelling() {
           </div>
 
           {/* Section 2: 15% - 40% (Left-aligned Copy) */}
-          <div 
+          <div
             style={{ opacity: getOverlayOpacity(progress, 0.15, 0.40) }}
             className="absolute left-6 md:left-24 max-w-sm md:max-w-md text-left space-y-3 transition-opacity duration-100"
           >
@@ -252,7 +252,7 @@ export default function SifterScrollytelling() {
           </div>
 
           {/* Section 3: 40% - 65% (Right-aligned Copy) */}
-          <div 
+          <div
             style={{ opacity: getOverlayOpacity(progress, 0.40, 0.65) }}
             className="absolute right-6 md:right-24 max-w-sm md:max-w-md text-left space-y-3 transition-opacity duration-100"
           >
@@ -265,7 +265,7 @@ export default function SifterScrollytelling() {
           </div>
 
           {/* Section 4: 65% - 85% (Focus Copy) */}
-          <div 
+          <div
             style={{ opacity: getOverlayOpacity(progress, 0.65, 0.85) }}
             className="absolute left-6 md:left-32 max-w-sm md:max-w-md text-left space-y-3 transition-opacity duration-100"
           >
@@ -278,7 +278,7 @@ export default function SifterScrollytelling() {
           </div>
 
           {/* Section 5: 85% - 100% (Centered CTA Copy) */}
-          <div 
+          <div
             style={{ opacity: getOverlayOpacity(progress, 0.85, 1.0) }}
             className="text-center space-y-4 pointer-events-auto transition-opacity duration-100 flex flex-col items-center justify-center"
           >
@@ -289,7 +289,7 @@ export default function SifterScrollytelling() {
               Experience the RG Sifter Cockpit Below
             </p>
             <div className="flex justify-center gap-4.5 pt-2">
-              <button 
+              <button
                 onClick={handleExploreClick}
                 className="py-3 px-8 rounded-full bg-[#f5820c] hover:bg-[#ff9900] text-[#120a03] font-display text-[10px] font-bold tracking-widest uppercase transition-all shadow-[0_0_12px_rgba(245,130,12,0.5)] cursor-pointer"
               >
@@ -298,17 +298,16 @@ export default function SifterScrollytelling() {
             </div>
 
             {/* Bouncing down-chevron explore cue */}
-            <div 
+            <div
               onClick={handleExploreClick}
               className="mt-6 flex flex-col items-center gap-1.5 cursor-pointer group pointer-events-auto"
             >
               <span className="font-display text-[9px] tracking-[0.2em] text-[#f5b866] uppercase font-black opacity-85 group-hover:text-white transition-colors">
                 EXPLORE THE FULL SYSTEM
               </span>
-              <ChevronDown 
-                className={`w-5 h-5 text-[#f5820c] group-hover:text-white transition-colors ${
-                  prefersReducedMotion ? '' : 'animate-bounce'
-                }`}
+              <ChevronDown
+                className={`w-5 h-5 text-[#f5820c] group-hover:text-white transition-colors ${prefersReducedMotion ? '' : 'animate-bounce'
+                  }`}
               />
             </div>
           </div>
