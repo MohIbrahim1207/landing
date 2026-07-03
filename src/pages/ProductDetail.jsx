@@ -424,7 +424,7 @@ export default function ProductDetail({ productId, onBack }) {
             />
           </div>
 
-          <div className="text-center font-mono text-[10px] md:text-xs text-[#f5b866]/40 uppercase tracking-[0.2em] mt-1.5 select-none animate-pulse">
+          <div className="text-center font-mono text-[10px] md:text-xs text-[#f5b866]/40 uppercase tracking-[0.2em] mt-8 mb-6 select-none animate-pulse">
             Images to be added soon. Please stay tuned.
           </div>
         </div>
