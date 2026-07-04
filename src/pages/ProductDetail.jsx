@@ -364,22 +364,19 @@ export default function ProductDetail({ productId, onBack }) {
       <footer className="w-full max-w-7xl mx-auto px-6 md:px-12 mt-12 z-20 flex justify-center relative">
         <div className="glass-panel rounded-full p-2.5 flex flex-wrap justify-center gap-3.5 max-w-full overflow-x-auto scrollbar-none">
           {[
-            { id: '360', name: '360° VIEW', icon: <Activity className="w-4 h-4" />, action: () => handleSelectThumb('complete') },
-            { id: 'exploded', name: 'EXPLODED VIEW', icon: <Layers className="w-4 h-4" />, action: () => setIsExploded(!isExploded) },
             { id: 'specs', name: 'SPECS', icon: <Sliders className="w-4 h-4" />, action: () => setActiveStep(2) },
-            { id: 'downloads', name: 'DOWNLOADS', icon: <Download className="w-4 h-4" />, action: handleDownload }
+            { id: 'downloads', name: 'DOWNLOADS', icon: <Download className="w-4 h-4" />, action: () => window.open('/COMPANY%20PROFILE%20FLOW%20FORCE%20INDONESIA%202026.pdf', '_blank') }
           ].map((btn) => {
-            const isExplodedActive = btn.id === 'exploded' && isExploded;
             return (
               <button
                 key={btn.id}
                 onClick={btn.action}
                 className={`py-2.5 px-8 rounded-full border font-display text-xs font-bold tracking-widest uppercase flex items-center gap-2 transition-all cursor-pointer`}
                 style={{
-                  backgroundColor: isExplodedActive ? 'var(--accent)' : 'transparent',
-                  color: isExplodedActive ? '#fff' : 'var(--text-heading)',
-                  borderColor: isExplodedActive ? 'var(--accent)' : 'var(--glass-border)',
-                  boxShadow: isExplodedActive ? '0 0 10px rgba(245,130,12,0.4)' : 'none'
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-heading)',
+                  borderColor: 'var(--glass-border)',
+                  boxShadow: 'none'
                 }}
               >
                 {btn.icon}
