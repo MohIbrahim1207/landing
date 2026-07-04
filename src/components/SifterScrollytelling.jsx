@@ -129,7 +129,7 @@ function SifterScrollytelling({ headerHeight = 80 }) {
 
       const rect = container.getBoundingClientRect();
       const scrollRange = rect.height - window.innerHeight;
-      const currentScroll = -rect.top + headerHeight; // Offset the calculation by header height so stickiness starts correctly
+      const currentScroll = -rect.top; // No offset needed since header is absolute/transparent
 
       // Clamp progress
       const currentProgress = Math.max(0, Math.min(1, currentScroll / scrollRange));
@@ -215,10 +215,10 @@ function SifterScrollytelling({ headerHeight = 80 }) {
         </div>
       )}
 
-      {/* Sticky Viewport - positioned exactly below the sticky header */}
+      {/* Sticky Viewport - full screen, header floats over this */}
       <div 
-        className="sticky w-full overflow-hidden" 
-        style={{ top: headerHeight, height: `calc(100vh - ${headerHeight}px)`, backgroundColor: 'var(--media-plate)' }}
+        className="sticky top-0 w-full h-screen overflow-hidden" 
+        style={{ backgroundColor: 'var(--media-plate)' }}
       >
         <div className="relative w-full h-full flex items-center justify-center">
           <canvas
