@@ -170,7 +170,7 @@ function SifterScrollytelling({ headerHeight = 80 }) {
 
   if (prefersReducedMotion) {
     return (
-      <div className="relative w-full flex flex-col items-center" style={{ paddingTop: headerHeight, paddingBottom: 48 }}>
+      <div className="relative w-full flex flex-col items-center" style={{ paddingBottom: 48 }}>
         <div className="w-full h-[60vh] relative mb-12" style={{ backgroundColor: 'var(--media-plate)' }}>
            <canvas ref={canvasRef} className="w-full h-full object-cover" />
         </div>
@@ -215,10 +215,10 @@ function SifterScrollytelling({ headerHeight = 80 }) {
         </div>
       )}
 
-      {/* Sticky Viewport - padding-top set dynamically to the header height */}
+      {/* Sticky Viewport - positioned exactly below the sticky header */}
       <div 
-        className="sticky top-0 w-full h-screen overflow-hidden" 
-        style={{ paddingTop: headerHeight, backgroundColor: 'var(--media-plate)' }}
+        className="sticky w-full overflow-hidden" 
+        style={{ top: headerHeight, height: `calc(100vh - ${headerHeight}px)`, backgroundColor: 'var(--media-plate)' }}
       >
         <div className="relative w-full h-full flex items-center justify-center">
           <canvas
